@@ -13,6 +13,12 @@
       ],
       "cflags_c": [
         "-std=c99",
+      ],
+      "cxxflags_cc": [
+        "-std=c++14",
+      ],
+      "cflags_cc": [
+        "-std=c++14",
       ]
     }
   ]

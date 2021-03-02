@@ -2,13 +2,13 @@ language: node_js
 sudo: false
 node_js:
   - "node"
-compiler: clang-3.6
+compiler: clang-5.0
 env:
-  - CXX=clang-3.6
+  - CC=clang++-5.0 CXX=clang++-5.0 CXXFLAGS=-std=c++14
 addons:
   apt:
     sources:
-      - llvm-toolchain-precise-3.6
+      - llvm-toolchain-trusty-5.0
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.6
+      - clang-5.0
