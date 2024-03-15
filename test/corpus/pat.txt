@@ -1,0 +1,1358 @@
+================================================================================
+pat: basic
+================================================================================
+
+a a (a:a : as) (a, a, (a, [a])) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations: (declarations
+    (function
+      name: (variable)
+      (patterns
+        (pat_name
+          (variable))
+        (pat_parens
+          (pat_infix
+            left_operand: (pat_infix
+              left_operand: (pat_name
+                (variable))
+              operator: (constructor_operator)
+              right_operand: (pat_name
+                (variable)))
+            operator: (constructor_operator)
+            right_operand: (pat_name
+              (variable))))
+        (pat_tuple
+          (pat_name
+            (variable))
+          (pat_name
+            (variable))
+          (pat_tuple
+            (pat_name
+              (variable))
+            (pat_list
+              (pat_name
+                (variable))))))
+      expression: (exp_name
+        (variable)))))
+
+================================================================================
+pat: con simple
+================================================================================
+
+a A = a
+a (A a) = a
+a (A A A) = a
+a (A a A (A a a A a)) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_name
+          (constructor)))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_apply
+            (pat_name
+              (constructor))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_apply
+            (pat_apply
+              (pat_name
+                (constructor))
+              (pat_name
+                (constructor)))
+            (pat_name
+              (constructor)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_apply
+            (pat_apply
+              (pat_apply
+                (pat_name
+                  (constructor))
+                (pat_name
+                  (variable)))
+              (pat_name
+                (constructor)))
+            (pat_parens
+              (pat_apply
+                (pat_apply
+                  (pat_apply
+                    (pat_apply
+                      (pat_name
+                        (constructor))
+                      (pat_name
+                        (variable)))
+                    (pat_name
+                      (variable)))
+                  (pat_name
+                    (constructor)))
+                (pat_name
+                  (variable)))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: consym
+================================================================================
+
+a (a :++ a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_infix
+            (pat_name
+              (variable))
+            (constructor_operator)
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: as
+================================================================================
+
+a a@(A a) a@(A a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_as
+          (variable)
+          (pat_parens
+            (pat_apply
+              (pat_name
+                (constructor))
+              (pat_name
+                (variable)))))
+        (pat_as
+          (variable)
+          (pat_parens
+            (pat_apply
+              (pat_name
+                (constructor))
+              (pat_name
+                (variable))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: wildcard
+================================================================================
+
+a (A _) _ a@_ a@(!_) a@(~_) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_apply
+            (pat_name
+              (constructor))
+            (pat_wildcard)))
+        (pat_wildcard)
+        (pat_as
+          (variable)
+          (pat_wildcard))
+        (pat_as
+          (variable)
+          (pat_parens
+            (pat_strict
+              (pat_wildcard))))
+        (pat_as
+          (variable)
+          (pat_parens
+            (pat_irrefutable
+              (pat_wildcard)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: literal
+================================================================================
+
+a 1 2 = 3
+a "a" "a" = a
+a 'a' 'b' = a
+a 1.0 2.0 = 3.0
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_literal
+          (integer))
+        (pat_literal
+          (integer)))
+      (exp_literal
+        (integer)))
+    (function
+      (variable)
+      (patterns
+        (pat_literal
+          (string))
+        (pat_literal
+          (string)))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_literal
+          (char))
+        (pat_literal
+          (char)))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_literal
+          (float))
+        (pat_literal
+          (float)))
+      (exp_literal
+        (float)))))
+
+================================================================================
+pat: record
+================================================================================
+
+f A {} = a
+f A {..} = a
+f a@A { a = a, b = a, a, .. } = a
+f !A {} = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_record
+          (pat_name
+            (constructor))
+          (pat_fields)))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_record
+          (pat_name
+            (constructor))
+          (pat_fields
+            (pat_field
+              (wildcard)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_as
+          (variable)
+          (pat_record
+            (pat_name
+              (constructor))
+            (pat_fields
+              (pat_field
+                (variable)
+                (pat_name
+                  (variable)))
+              (pat_field
+                (variable)
+                (pat_name
+                  (variable)))
+              (pat_field
+                (variable))
+              (pat_field
+                (wildcard))))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_strict
+          (pat_record
+            (pat_name
+              (constructor))
+            (pat_fields))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: zero indent record
+================================================================================
+
+a =
+  do
+    A {
+a = a
+, a = a,
+a, ..
+} <- a
+    a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (exp_do
+        (bind_statement
+          (pat_record
+            (pat_name
+              (constructor))
+            (pat_fields
+              (pat_field
+                (variable)
+                (pat_name
+                  (variable)))
+              (pat_field
+                (variable)
+                (pat_name
+                  (variable)))
+              (pat_field
+                (variable))
+              (pat_field
+                (wildcard))))
+          (exp_name
+            (variable)))
+        (exp_statement
+          (exp_name
+            (variable)))))))
+
+================================================================================
+pat: strict
+================================================================================
+
+a !a = a
+a !(!a) = a
+a !(!(a, a), a) ![_] !_ = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_strict
+          (pat_name
+            (variable))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_strict
+          (pat_parens
+            (pat_strict
+              (pat_name
+                (variable))))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_strict
+          (pat_tuple
+            (pat_strict
+              (pat_tuple
+                (pat_name
+                  (variable))
+                (pat_name
+                  (variable))))
+            (pat_name
+              (variable))))
+        (pat_strict
+          (pat_list
+            (pat_wildcard)))
+        (pat_strict
+          (pat_wildcard)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: irrefutable
+================================================================================
+
+a ~a = a
+a ~(~a) = a
+a ~(~(a, a), a) ~[_] ~_ = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_irrefutable
+          (pat_name
+            (variable))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_irrefutable
+          (pat_parens
+            (pat_irrefutable
+              (pat_name
+                (variable))))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_irrefutable
+          (pat_tuple
+            (pat_irrefutable
+              (pat_tuple
+                (pat_name
+                  (variable))
+                (pat_name
+                  (variable))))
+            (pat_name
+              (variable))))
+        (pat_irrefutable
+          (pat_list
+            (pat_wildcard)))
+        (pat_irrefutable
+          (pat_wildcard)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: view pattern in argument patterns
+================================================================================
+
+a (a a -> Aa a a) = a
+a (a -> a, a -> a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_view
+            (exp_apply
+              (exp_name
+                (variable))
+              (exp_name
+                (variable)))
+            (pat_apply
+              (pat_apply
+                (pat_name
+                  (constructor))
+                (pat_name
+                  (variable)))
+              (pat_name
+                (variable))))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_tuple
+          (pat_view
+            (exp_name
+              (variable))
+            (pat_name
+              (variable)))
+          (pat_view
+            (exp_name
+              (variable))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: view pattern in lambda
+================================================================================
+
+a = \ (a -> a) -> a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (exp_lambda
+        (patterns
+          (pat_parens
+            (pat_view
+              (exp_name
+                (variable))
+              (pat_name
+                (variable)))))
+        (exp_name
+          (variable))))))
+
+================================================================================
+pat: infix varop decl
+================================================================================
+
+a == a = a
+A a == A a = a == a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (infix
+        (pat_name
+          (variable))
+        (operator)
+        (pat_name
+          (variable)))
+      (exp_name
+        (variable)))
+    (function
+      (infix
+        (pat_apply
+          (pat_name
+            (constructor))
+          (pat_name
+            (variable)))
+        (operator)
+        (pat_apply
+          (pat_name
+            (constructor))
+          (pat_name
+            (variable))))
+      (exp_infix
+        (exp_name
+          (variable))
+        (operator)
+        (exp_name
+          (variable))))))
+
+================================================================================
+pat: error: varop in operand of infix varop decl
+================================================================================
+
+a == a + a = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (top_splice
+      (exp_infix
+        (exp_infix
+          (exp_name
+            (variable))
+          (operator)
+          (exp_name
+            (variable)))
+        (operator)
+        (exp_apply
+          (exp_name
+            (variable))
+          (ERROR)
+          (exp_name
+            (variable)))))))
+
+================================================================================
+pat: lenient: parens around infix varop decl
+================================================================================
+
+-- While GHC prohbits this, we choose to be lenient.
+(a ++++ a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (comment)
+  (declarations
+    (function
+      (infix
+        (pat_name
+          (variable))
+        (operator)
+        (pat_name
+          (variable)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: tuple pattern binder
+================================================================================
+
+(a, a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (pat_tuple
+        (pat_name
+          (variable))
+        (pat_name
+          (variable)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: con application pattern binder
+================================================================================
+
+A a = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (pat_apply
+        (pat_name
+          (constructor))
+        (pat_name
+          (variable)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: parens con application pattern binder
+================================================================================
+
+(A a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations: (declarations
+    (bind
+      pattern: (pat_parens
+        (pat_apply
+          (pat_name
+            (constructor))
+          arg: (pat_name
+            (variable))))
+      expression: (exp_name
+        (variable)))))
+
+================================================================================
+pat: parenthesized record
+================================================================================
+
+a (A{}) = a
+
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_record
+            (pat_name
+              (constructor))
+            (pat_fields))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: guards
+================================================================================
+
+a a | a < 1, a > 1 = A
+    | A (A A {..} _) : a <- a = A
+    | otherwise = A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations: (declarations
+    (function
+      name: (variable)
+      (patterns
+        (pat_name
+          (variable)))
+      (guard_equation
+        guards: (guards
+          guard: (boolean_guard
+            (exp_infix
+              left_operand: (exp_name
+                (variable))
+              operator: (operator)
+              right_operand: (exp_literal
+                (integer))))
+          guard: (boolean_guard
+            (exp_infix
+              left_operand: (exp_name
+                (variable))
+              operator: (operator)
+              right_operand: (exp_literal
+                (integer)))))
+        expression: (exp_name
+          (constructor)))
+      (guard_equation
+        guards: (guards
+          guard: (pattern_guard
+            (pat_infix
+              left_operand: (pat_apply
+                (pat_name
+                  (constructor))
+                arg: (pat_parens
+                  (pat_apply
+                    (pat_apply
+                      (pat_name
+                        (constructor))
+                      arg: (pat_record
+                        constructor: (pat_name
+                          (constructor))
+                        fields: (pat_fields
+                          (pat_field
+                            (wildcard)))))
+                    arg: (pat_wildcard))))
+              operator: (constructor_operator)
+              right_operand: (pat_name
+                (variable)))
+            (exp_name
+              (variable))))
+        expression: (exp_name
+          (constructor)))
+      (guard_equation
+        guards: (guards
+          guard: (boolean_guard
+            (exp_name
+              (variable))))
+        expression: (exp_name
+          (constructor))))))
+
+================================================================================
+pat: view pattern in record
+================================================================================
+
+a A { a = a -> a } = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_record
+          (pat_name
+            (constructor))
+          (pat_fields
+            (pat_field
+              (variable)
+              (pat_view
+                (exp_name
+                  (variable))
+                (pat_name
+                  (variable)))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: unboxed tuple
+================================================================================
+
+a (# a, a, a #) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_unboxed_tuple
+          (pat_name
+            (variable))
+          (pat_name
+            (variable))
+          (pat_name
+            (variable))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: unboxed sum, nullary tuple
+================================================================================
+
+a (# (# #) | | #) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_unboxed_sum
+          (pat_unboxed_tuple)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: signature
+================================================================================
+
+a (a :: A) = a
+a = do
+  let (a :: A, a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_annotated
+            (pat_name
+              (variable))
+            (type_name
+              (type)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (exp_do
+        (let
+          (binds
+            (bind
+              (pat_tuple
+                (pat_annotated
+                  (pat_name
+                    (variable))
+                  (type_name
+                    (type)))
+                (pat_name
+                  (variable)))
+              (exp_name
+                (variable)))))))))
+
+================================================================================
+pat: do binder signature
+================================================================================
+
+a = do
+  a :: A <- a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations: (declarations
+    (function
+      name: (variable)
+      expression: (exp_do
+        (bind_statement
+          (pat_annotated
+            pattern: (pat_name
+              (variable))
+            (type_name
+              (type)))
+          (exp_name
+            (variable)))))))
+
+================================================================================
+pat: pattern binding signature
+================================================================================
+
+a :: A = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (pat_annotated
+        (pat_name
+          (variable))
+        (type_name
+          (type)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: do binder view pattern
+================================================================================
+
+a = do
+  (a -> a) <- a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (exp_do
+        (bind_statement
+          (pat_parens
+            (pat_view
+              (exp_name
+                (variable))
+              (pat_name
+                (variable))))
+          (exp_name
+            (variable)))))))
+
+================================================================================
+pat: splice
+================================================================================
+
+a $(a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (splice
+          (exp_parens
+            (exp_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: quasiqoute
+================================================================================
+
+a [a|a|] = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (quasiquote
+          (quoter
+            (variable))
+          (quasiquote_body)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: operator
+================================================================================
+
+a (++) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_name
+          (operator)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: negation
+================================================================================
+
+f (-1) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_negation
+            (integer))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: type binders
+================================================================================
+
+a @a (A @a @(a :: a) @(A a :: a) @(∀ a . A a :: a)) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_type_binder
+          (type_name
+            (type_variable)))
+        (pat_parens
+          (pat_apply
+            (pat_apply
+              (pat_apply
+                (pat_apply
+                  (pat_name
+                    (constructor))
+                  (pat_type_binder
+                    (type_name
+                      (type_variable))))
+                (pat_type_binder
+                  (type_parens
+                    (type_annotated
+                      (type_name
+                        (type_variable))
+                      (type_name
+                        (type_variable))))))
+              (pat_type_binder
+                (type_parens
+                  (type_annotated
+                    (type_apply
+                      (type_name
+                        (type))
+                      (type_name
+                        (type_variable)))
+                    (type_name
+                      (type_variable))))))
+            (pat_type_binder
+              (type_parens
+                (type_annotated
+                  (type_forall
+                    (quantifiers
+                      (type_variable))
+                    (type_apply
+                      (type_name
+                        (type))
+                      (type_name
+                        (type_variable))))
+                  (type_name
+                    (type_variable))))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: infix function with extra args
+================================================================================
+
+(a ++ a) a a = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (infix
+        (pat_name
+          (variable))
+        (operator)
+        (pat_name
+          (variable)))
+      (patterns
+        (pat_name
+          (variable))
+        (pat_name
+          (variable)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: cond in viewpat
+================================================================================
+
+a (if a then a else a -> a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_view
+            (exp_cond
+              (exp_name
+                (variable))
+              (exp_name
+                (variable))
+              (exp_name
+                (variable)))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: lambda in viewpat
+================================================================================
+
+a (\ a -> a -> a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_view
+            (exp_lambda
+              (patterns
+                (pat_name
+                  (variable)))
+              (exp_name
+                (variable)))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: complex viewpat
+================================================================================
+
+a (a <> if a then a else a -> a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_view
+            (exp_infix
+              (exp_name
+                (variable))
+              (operator)
+              (exp_cond
+                (exp_name
+                  (variable))
+                (exp_name
+                  (variable))
+                (exp_name
+                  (variable))))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: error: annotation in viewpat
+================================================================================
+
+a (a :: A -> A {}) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (pat_apply
+        (pat_name
+          (variable))
+        (pat_parens
+          (pat_annotated
+            (pat_name
+              (variable))
+            (type_fun
+              (type_name
+                (type))
+              (type_name
+                (type))))
+          (ERROR)))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: multi viewpat
+================================================================================
+
+a (a -> a -> a -> A) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_view
+            (exp_name
+              (variable))
+            (pat_view
+              (exp_name
+                (variable))
+              (pat_view
+                (exp_name
+                  (variable))
+                (pat_name
+                  (constructor)))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: ticked infix
+================================================================================
+
+a (a `A` a) = a
+a (a `A.A` a) = a
+a (A a `A` A a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_infix
+            (pat_name
+              (variable))
+            (infix_id
+              (constructor))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_infix
+            (pat_name
+              (variable))
+            (infix_id
+              (qualified_constructor
+                (module)
+                (constructor)))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_infix
+            (pat_apply
+              (pat_name
+                (constructor))
+              (pat_name
+                (variable)))
+            (infix_id
+              (constructor))
+            (pat_apply
+              (pat_name
+                (constructor))
+              (pat_name
+                (variable))))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: prefix tuple con
+================================================================================
+
+a ((,) a a) = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (pat_parens
+          (pat_apply
+            (pat_apply
+              (pat_literal
+                (con_tuple))
+              (pat_name
+                (variable)))
+            (pat_name
+              (variable)))))
+      (exp_name
+        (variable)))))
+
+================================================================================
+pat: bang in case match
+================================================================================
+
+a = case a of !a -> a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (exp_case
+        (exp_name
+          (variable))
+        (alts
+          (alt
+            (pat_strict
+              (pat_name
+                (variable)))
+            (match
+              (exp_name
+                (variable)))))))))

@@ -1,0 +1,439 @@
+================================================================================
+import: unqualified module plain
+================================================================================
+
+module A where
+
+import A
+
+a = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (header
+    (module))
+  (imports
+    (import
+      (module)))
+  (declarations
+    (function
+      (variable)
+      (exp_name
+        (variable)))))
+
+================================================================================
+import: unqualified module with empty export list
+================================================================================
+
+import A ()
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list))))
+
+================================================================================
+import: unqualified module with alias
+================================================================================
+
+import A as A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (module))))
+
+================================================================================
+import: qualified module
+================================================================================
+
+import A.A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module)))))
+
+================================================================================
+import: var only
+================================================================================
+
+import Aaa.A (aa)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (variable))))))
+
+================================================================================
+import: type only
+================================================================================
+
+import Aaa.A (A)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type))))))
+
+================================================================================
+import: type with constructor
+================================================================================
+
+import Aaa.A (A(A))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (constructor)))))))
+
+================================================================================
+import: type with var
+================================================================================
+
+import Aaa.A (A(aa))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (variable)))))))
+
+================================================================================
+import: type with symbolic var
+================================================================================
+
+import Aaa.A (A((<>)))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (operator)))))))
+
+================================================================================
+import: type dotdot
+================================================================================
+
+import Aaa.A (A(..))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (all_names)))))))
+
+================================================================================
+import: qualified basic
+================================================================================
+
+import qualified Aaa.A
+import qualified A ()
+import qualified Aaa.A (a)
+import Aaa.A qualified (a)
+import qualified Aaa.A hiding (A, a)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module)))
+    (import
+      (module)
+      (import_list))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (variable))))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (variable))))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type))
+        (import_item
+          (variable))))))
+
+================================================================================
+import: qualified as
+================================================================================
+
+module A where
+
+import qualified Aaa.A as A
+import qualified Aaa.A as A (A(A, a), aa)
+import qualified A as A ()
+
+-- a
+
+import qualified Aaa.A as A
+import qualified Aaa.A as Aaa.A
+import qualified Aaa.A as A hiding (a)
+
+data A = A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (header
+    (module))
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (module))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (module)
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (constructor)
+            (variable)))
+        (import_item
+          (variable))))
+    (import
+      (module)
+      (module)
+      (import_list))
+    (comment)
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (module))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (qualified_module
+        (module)
+        (module)))
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (module)
+      (import_list
+        (import_item
+          (variable)))))
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (constructors
+        (data_constructor
+          (constructor))))))
+
+================================================================================
+import: prim
+================================================================================
+
+import Aaa.Aa (Aa#, aa#)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (qualified_module
+        (module)
+        (module))
+      (import_list
+        (import_item
+          (type))
+        (import_item
+          (variable))))))
+
+================================================================================
+import: package
+================================================================================
+
+import "a" Aaa.Aa
+import qualified "a" Aaa.Aa as Aa (Aa(a))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (import_package)
+      (qualified_module
+        (module)
+        (module)))
+    (import
+      (import_package)
+      (qualified_module
+        (module)
+        (module))
+      (module)
+      (import_list
+        (import_item
+          (type)
+          (import_con_names
+            (variable)))))))
+
+================================================================================
+import: consym
+================================================================================
+
+import A ((:<|>)((:<|>)))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list
+        (import_item
+          (constructor_operator)
+          (import_con_names
+            (constructor_operator)))))))
+
+================================================================================
+import: operator
+================================================================================
+
+import A ((<=<))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list
+        (import_item
+          (operator))))))
+
+================================================================================
+import: pattern/type
+================================================================================
+
+import A (pattern A, type A)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list
+        (import_item
+          (namespace)
+          (type))
+        (import_item
+          (namespace)
+          (type))))))
+
+================================================================================
+import: trailing comma
+================================================================================
+
+import A (A,)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list
+        (import_item
+          (type))))))
+
+================================================================================
+import: type operator with namespace
+================================================================================
+
+import A (type (++)(..))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module)
+      (import_list
+        (import_item
+          (namespace)
+          (operator)
+          (import_con_names
+            (all_names)))))))

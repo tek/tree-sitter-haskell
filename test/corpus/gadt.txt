@@ -1,0 +1,470 @@
+================================================================================
+gadt: empty
+================================================================================
+
+data A where
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type)))))
+
+================================================================================
+gadt: basic
+================================================================================
+
+data A a where
+  A :: A -> !(A a) ->
+    A a
+  A :: {-# unpack #-} A -> A a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_apply
+        (type_name
+          (type))
+        (type_name
+          (type_variable)))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_fun
+            (type_name
+              (type))
+            (type_fun
+              (type_strict
+                (type_parens
+                  (type_apply
+                    (type_name
+                      (type))
+                    (type_name
+                      (type_variable)))))
+              (type_apply
+                (type_name
+                  (type))
+                (type_name
+                  (type_variable))))))
+        (gadt_constructor
+          (constructor)
+          (pragma)
+          (type_fun
+            (type_name
+              (type))
+            (type_apply
+              (type_name
+                (type))
+              (type_name
+                (type_variable)))))))))
+
+================================================================================
+gadt: record
+================================================================================
+
+data A where
+  A :: { a :: A, a :: !A } -> A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (record_fields
+            (field
+              (variable)
+              (type_name
+                (type)))
+            (field
+              (variable)
+              (type_strict
+                (type_name
+                  (type)))))
+          (type_name
+            (type)))))))
+
+================================================================================
+gadt: signature
+================================================================================
+
+data A :: [*] -> * where
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (type_fun
+        (type_list
+          (type_star))
+        (type_star)))))
+
+================================================================================
+gadt: context
+================================================================================
+
+data A a => A where
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (context
+        (class_apply
+          (class_name
+            (type_name
+              (type)))
+          (type_name
+            (type_variable))))
+      (type_name
+        (type)))))
+
+================================================================================
+gadt: con context
+================================================================================
+
+data A where
+  A :: A a => A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (context
+            (class_apply
+              (class_name
+                (type_name
+                  (type)))
+              (type_name
+                (type_variable))))
+          (type_name
+            (type)))))))
+
+================================================================================
+gadt: forall
+================================================================================
+
+data A where
+  A :: ∀ a . A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (forall
+            (quantifiers
+              (type_variable)))
+          (type_name
+            (type)))))))
+
+================================================================================
+gadt: simple deriving
+================================================================================
+
+data A where
+  A :: A
+  deriving A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_name
+            (type))))
+      (deriving
+        (class_name
+          (type))))))
+
+================================================================================
+gadt: deriving
+================================================================================
+
+data A where
+  A :: A
+  deriving stock A
+  deriving A via (A A)
+
+data A where
+  A :: A deriving A deriving stock A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_name
+            (type))))
+      (deriving
+        (deriving_strategy)
+        (class_name
+          (type)))
+      (deriving
+        (class_name
+          (type))
+        (via
+          (type_parens
+            (type_apply
+              (type_name
+                (type))
+              (type_name
+                (type)))))))
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_name
+            (type))))
+      (deriving
+        (class_name
+          (type)))
+      (deriving
+        (deriving_strategy)
+        (class_name
+          (type))))))
+
+================================================================================
+gadt: symbolic operator
+================================================================================
+
+data a +++ b where
+  (:+++) :: a -> b -> a +++ b
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_infix
+        (type_name
+          (type_variable))
+        (operator)
+        (type_name
+          (type_variable)))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor_operator)
+          (type_fun
+            (type_name
+              (type_variable))
+            (type_fun
+              (type_name
+                (type_variable))
+              (type_infix
+                (type_name
+                  (type_variable))
+                (operator)
+                (type_name
+                  (type_variable))))))))))
+
+================================================================================
+gadt: newtype
+================================================================================
+
+newtype A where
+  A :: A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (newtype
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_name
+            (type)))))))
+
+================================================================================
+gadt: symbolic type
+================================================================================
+
+data (:#) a where
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_apply
+        (type_name
+          (constructor_operator))
+        (type_name
+          (type_variable))))))
+
+================================================================================
+gadt: strict/lazy
+================================================================================
+
+data A where
+  A :: ~A -> A
+  A :: !A -> A
+  A :: A ~ A => A -> A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_fun
+            (type_lazy
+              (type_name
+                (type)))
+            (type_name
+              (type))))
+        (gadt_constructor
+          (constructor)
+          (type_fun
+            (type_strict
+              (type_name
+                (type)))
+            (type_name
+              (type))))
+        (gadt_constructor
+          (constructor)
+          (context
+            (class_infix
+              (type_name
+                (type))
+              (operator)
+              (type_name
+                (type))))
+          (type_fun
+            (type_name
+              (type))
+            (type_name
+              (type))))))))
+
+================================================================================
+gadt: type data
+================================================================================
+
+type data A a where
+  A :: A ~ A => A a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_apply
+        (type_name
+          (type))
+        (type_name
+          (type_variable)))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (context
+            (class_infix
+              (type_name
+                (type))
+              (operator)
+              (type_name
+                (type))))
+          (type_apply
+            (type_name
+              (type))
+            (type_name
+              (type_variable))))))))
+
+================================================================================
+gadt: multiplicity arrow
+================================================================================
+
+data A a where
+  A :: a %1 -> A a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_apply
+        (type_name
+          (type))
+        (type_name
+          (type_variable)))
+      (gadt_constructors
+        (gadt_constructor
+          (constructor)
+          (type_linear_fun
+            (type_name
+              (type_variable))
+            (modifier
+              (type_literal
+                (integer)))
+            (type_apply
+              (type_name
+                (type))
+              (type_name
+                (type_variable)))))))))
+
+================================================================================
+gadt: con list
+================================================================================
+
+data A where
+  A, A, A :: a -> A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (type_name
+        (type))
+      (gadt_constructors
+        (gadt_constructor
+          (binding_list
+            (constructor)
+            (constructor)
+            (constructor))
+          (type_fun
+            (type_name
+              (type_variable))
+            (type_name
+              (type))))))))

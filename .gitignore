@@ -1,0 +1,16 @@
+node_modules
+build
+*.log
+package-lock.json
+/test/libs/*
+!/test/libs/.gitkeep
+.gdb_history
+*.o
+*.so
+/.build/
+/target/
+/src/grammar.json
+/src/node-types.json
+/src/parser.c
+/dist-newstyle
+/test-scanner
