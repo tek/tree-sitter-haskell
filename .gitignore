@@ -1,0 +1,9 @@
+/src/parser.c
+/dist-newstyle
+/result
+/test/libs/*
+!/test/libs/.gitkeep
+/build/
+/target/
+/.lib/
+/node_modules/

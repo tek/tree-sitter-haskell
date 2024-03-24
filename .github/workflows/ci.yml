@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['**']
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    name: test / ${{matrix.os}}
+    runs-on: ${{matrix.os}}
+    if: github.event.pull_request.merged == true || github.event.action != 'closed'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Run tests
+        run: nix -L run .#ci
