@@ -25,7 +25,7 @@ a = a
         (variable)))))
 
 ================================================================================
-import: unqualified module with empty export list
+import: unqualified module with empty import list
 ================================================================================
 
 import A ()
