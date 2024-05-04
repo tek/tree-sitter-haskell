@@ -63,6 +63,7 @@
  */
 
 #include "tree_sitter/parser.h"
+#include "tree_sitter/array.h"
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
@@ -103,27 +104,6 @@
 // Short circuit a parse step: If the argument expression returns 0, continue; otherwise return its result.
 // This is used with enums, so casting to unsigned should not cause problems.
 #define SEQ(expr) do { unsigned res = (unsigned) expr; if (res) return res; } while (0)
-
-// --------------------------------------------------------------------------------------------------------
-// Vector
-// --------------------------------------------------------------------------------------------------------
-
-#define VEC_RESIZE(vec, new_cap) {\
-  (vec)->data = realloc((vec)->data, (new_cap) * sizeof((vec)->data[0])); \
-  assert((vec)->data != NULL); \
-  (vec)->cap = (new_cap); }
-
-#define VEC_GROW(vec, new_cap) if ((vec)->cap < (new_cap)) { VEC_RESIZE((vec), (new_cap)); }
-
-#define VEC_PUSH(vec, el) {\
-  if ((vec)->cap == (vec)->len) { VEC_RESIZE((vec), (vec)->len > 0 ? (vec)->len * 2 : 8); } \
-  (vec)->data[(vec)->len++] = (el); }
-
-#define VEC_POP(vec) (vec)->len--;
-
-#define VEC_BACK(vec) ((vec)->data[(vec)->len - 1])
-
-#define VEC_FREE(vec) { if ((vec)->data != NULL) free((vec)->data); }
 
 // --------------------------------------------------------------------------------------------------------
 // Symbols
@@ -248,20 +228,12 @@ static const char *sym_names[] = {
 
 #if DEBUG
 
-typedef struct {
-  unsigned len;
-  unsigned cap;
-  int32_t *data;
-} ParseLine;
+typedef Array(int32_t) ParseLine;
 
 /**
  * A vector of lines, persisted across runs, for visualizing the current lexer position and scanner lookahead.
  */
-typedef struct {
-  unsigned len;
-  unsigned cap;
-  ParseLine *data;
-} ParseLines;
+typedef Array(ParseLine) ParseLines;
 
 /**
  * Info about calls to `mark_end` and how far the lexer has progressed in a run.
@@ -455,15 +427,6 @@ typedef struct {
 } Newline;
 
 /**
- * The vector for the layout context stack.
- */
-typedef struct {
-  uint32_t len;
-  uint32_t cap;
-  Context *data;
-} Contexts;
-
-/**
  * Whenever the lexer is advanced over non-(leading-)whitespace, the consumed character is appended to this vector.
  * This avoids having to ensure that different components that need to examine multiple lookahead characters have to be
  * run in the correct order.
@@ -599,12 +562,7 @@ typedef struct {
  *                               ^
  * || 15/13
  */
-typedef struct {
-  uint32_t len;
-  uint32_t cap;
-  int32_t *data;
-  uint32_t offset;
-} Lookahead;
+typedef Array(int32_t) Lookahead;
 
 /**
  * The state that is persisted across scanner runs.
@@ -616,9 +574,10 @@ typedef struct {
  * REVIEW: Can tree-sitter run the scanner concurrently on multiple nodes in the same file in some situations?
  */
 typedef struct {
-  Contexts contexts;
+  Array(Context) contexts;
   Newline newline;
   Lookahead lookahead;
+  uint32_t offset;
 #if DEBUG
   ParseLines parse;
 #endif
@@ -637,7 +596,7 @@ typedef struct {
 #endif
 } Env;
 
-Env env_new(TSLexer *l, const bool * symbols, State *state) {
+static Env env_new(TSLexer *l, const bool * symbols, State *state) {
   return (Env) {
     .lexer = l,
     .symbols = symbols,
@@ -682,7 +641,7 @@ static uint32_t column(Env *env) {
  */
 static void advance(Env *env) {
   if (not_eof(env)) {
-    VEC_PUSH(&env->state->lookahead, PEEK);
+    array_push(&env->state->lookahead, PEEK);
     env->lexer->advance(env->lexer, false);
   }
 }
@@ -759,7 +718,7 @@ static Symbol update_state(const char *restrict desc) {
  * times.
  */
 static void advance_over_abs(Env *env, uint32_t abs) {
-  for (uint32_t i = env->state->lookahead.len; i <= abs; i++) S_ADVANCE;
+  for (uint32_t i = env->state->lookahead.size; i <= abs; i++) S_ADVANCE;
 }
 
 /**
@@ -771,7 +730,7 @@ static void advance_over_abs(Env *env, uint32_t abs) {
  * advances once, over the character at index 0.
  */
 static void advance_over(Env *env, uint32_t rel) {
-  advance_over_abs(env, env->state->lookahead.offset + rel);
+  advance_over_abs(env, env->state->offset + rel);
 }
 
 /**
@@ -796,9 +755,9 @@ static void advance_over(Env *env, uint32_t rel) {
 static void skip_over(Env *env, uint32_t rel) {
   Lookahead *l = &env->state->lookahead;
   // Subtraction is safe because the condition establishes that `offset` is at least 1
-  if (l->offset > l->len) advance_over_abs(env, l->offset - 1);
-  uint32_t abs = l->offset + rel;
-  for (uint32_t i = env->state->lookahead.len; i <= abs; i++) S_SKIP;
+  if (env->state->offset > l->size) advance_over_abs(env, env->state->offset - 1);
+  uint32_t abs = env->state->offset + rel;
+  for (uint32_t i = env->state->lookahead.size; i <= abs; i++) S_SKIP;
 }
 
 /**
@@ -806,7 +765,7 @@ static void skip_over(Env *env, uint32_t rel) {
  * Since `lexer->lookahead` points at the character after the buffer, it must have `offset + n - 1` elements.
  */
 static void advance_before(Env *env, uint32_t rel) {
-  uint32_t abs = env->state->lookahead.offset + rel;
+  uint32_t abs = env->state->offset + rel;
   if (abs > 0) advance_over_abs(env, abs - 1);
 }
 
@@ -819,8 +778,8 @@ static void advance_before(Env *env, uint32_t rel) {
  */
 static int32_t unsafe_peek_abs(Env *env, uint32_t abs) {
   return
-    abs < env->state->lookahead.len ?
-    env->state->lookahead.data[abs] :
+    abs < env->state->lookahead.size ?
+    *array_get(&env->state->lookahead, abs) :
     0;
 }
 
@@ -829,20 +788,20 @@ static int32_t unsafe_peek_abs(Env *env, uint32_t abs) {
  * See `unsafe_peek_abs`.
  */
 static int32_t unsafe_peek(Env *env, uint32_t rel) {
-  return unsafe_peek_abs(env, env->state->lookahead.offset + rel);
+  return unsafe_peek_abs(env, env->state->offset + rel);
 }
 
 #if DEBUG
 
 static void debug_peek(Env *env, uint32_t rel) {
-  uint32_t abs = env->state->lookahead.offset + rel;
+  uint32_t abs = env->state->offset + rel;
   dbg("peek ");
-  if (env->state->lookahead.offset > 0) dbg("%u->", env->state->lookahead.offset);
+  if (env->state->offset > 0) dbg("%u->", env->state->offset);
   dbg("%u", rel);
-  if (abs < env->state->lookahead.len)
-    dbg(" cached | len: %u", env->state->lookahead.len);
-  else if (abs > env->state->lookahead.len)
-    dbg(" advance | len: %u", env->state->lookahead.len);
+  if (abs < env->state->lookahead.size)
+    dbg(" cached | len: %u", env->state->lookahead.size);
+  else if (abs > env->state->lookahead.size)
+    dbg(" advance | len: %u", env->state->lookahead.size);
   dbg("\n");
 }
 
@@ -859,7 +818,7 @@ static int32_t peek(Env *env, uint32_t rel) {
 #if DEBUG >= 2
   debug_peek(env, rel);
 #endif
-  if (env->state->lookahead.offset + rel < env->state->lookahead.len) return unsafe_peek(env, rel);
+  if (env->state->offset + rel < env->state->lookahead.size) return unsafe_peek(env, rel);
   else {
     advance_before(env, rel);
     return PEEK;
@@ -921,12 +880,12 @@ static bool char2(Env *env, int32_t c) {
  */
 static void reset_lookahead_abs(Env *env, uint32_t abs) {
   dbg("reset: %u\n", abs);
-  env->state->lookahead.offset = abs;
+  env->state->offset = abs;
   env->symop = 0;
 }
 
 static void reset_lookahead_to(Env *env, uint32_t rel) {
-  reset_lookahead_abs(env, env->state->lookahead.offset + rel);
+  reset_lookahead_abs(env, env->state->offset + rel);
 }
 
 /**
@@ -934,7 +893,7 @@ static void reset_lookahead_to(Env *env, uint32_t rel) {
  * the current position at the time this function is executed.
  */
 static void reset_lookahead(Env *env) {
-  reset_lookahead_abs(env, env->state->lookahead.len);
+  reset_lookahead_abs(env, env->state->lookahead.size);
 }
 
 /**
@@ -951,7 +910,7 @@ static void reset_lookahead(Env *env) {
  * newlines.
  */
 static bool no_lookahead(Env *env) {
-  return env->state->lookahead.len == 0;
+  return env->state->lookahead.size == 0;
 }
 
 /**
@@ -959,7 +918,7 @@ static bool no_lookahead(Env *env) {
  * This is needed for starting layouts in interior mode, since we don't count positions across interior runs.
  */
 static uint32_t start_column(Env *env) {
-  return column(env) - env->state->lookahead.len;
+  return column(env) - env->state->lookahead.size;
 }
 
 /**
@@ -985,7 +944,7 @@ static uint32_t advance_until_char(Env *env, uint32_t i, int32_t c) {
 // Context manipulation and conditions
 // --------------------------------------------------------------------------------------------------------
 
-static bool has_contexts(Env *env) { return env->state->contexts.len != 0; }
+static bool has_contexts(Env *env) { return env->state->contexts.size != 0; }
 
 /**
  * Push a layout context onto the stack.
@@ -993,7 +952,7 @@ static bool has_contexts(Env *env) { return env->state->contexts.len != 0; }
 static void push_context(Env *env, ContextSort sort, uint32_t indent) {
   dbg("push: %s %d\n", context_names[sort], indent);
   Context ctx = (Context) {.sort = sort, .indent = indent};
-  VEC_PUSH(&env->state->contexts, ctx);
+  array_push(&env->state->contexts, ctx);
 }
 
 /**
@@ -1001,13 +960,13 @@ static void push_context(Env *env, ContextSort sort, uint32_t indent) {
  */
 static void pop(Env *env) {
   if (has_contexts(env)) {
-    dbg("pop: %s\n", context_names[VEC_BACK(&env->state->contexts).sort]);
-    VEC_POP(&env->state->contexts);
+    dbg("pop: %s\n", context_names[array_back(&env->state->contexts)->sort]);
+    array_erase(&env->state->contexts, env->state->contexts.size - 1);
   }
 }
 
 static ContextSort current_context(Env *env) {
-  return has_contexts(env) ? VEC_BACK(&env->state->contexts).sort : NoContext;
+  return has_contexts(env) ? array_back(&env->state->contexts)->sort : NoContext;
 }
 
 static bool is_layout_context(Env *env) {
@@ -1027,8 +986,8 @@ static bool is_semicolon_context(Env *env) {
  * If there are non-layout contexts at the top of the stack, search downwards.
  */
 static uint32_t current_indent(Env *env) {
-  for (int32_t i = (int32_t) env->state->contexts.len - 1; i >= 0; i--) {
-    Context *cur = env->state->contexts.data + i;
+  for (int32_t i = (int32_t) env->state->contexts.size - 1; i >= 0; i--) {
+    Context *cur = array_get(&env->state->contexts, i);
     if (cur->sort < Braces) return cur->indent;
   }
   return 0;
@@ -1043,7 +1002,7 @@ static bool indent_lesseq(Env *env, uint32_t indent) {
 }
 
 static bool top_layout(Env *env) {
-  return env->state->contexts.len == 1;
+  return env->state->contexts.size == 1;
 }
 
 static bool in_module_header(Env *env) {
@@ -1132,7 +1091,7 @@ static uint32_t symop_lookahead(Env *env) {
   if (env->symop == 0) {
     env->symop = advance_while(env, 0, symop_char);
     if (env->symop > 0)
-      dbg("symop: %d, %.*ls\n", env->symop, env->symop, env->state->lookahead.data + env->state->lookahead.offset);
+      dbg("symop: %d, %.*ls\n", env->symop, env->symop, array_get(&env->state->lookahead, env->state->offset));
   }
   return env->symop;
 }
@@ -1155,16 +1114,16 @@ static bool after_error(Env *env) { return valid(env, FAIL); }
 #if DEBUG
 
 static void push_parse_buffer_line(Env *env) {
-  ParseLine new_line = {.len = 0};
-  VEC_GROW(&new_line, 1);
-  VEC_PUSH(&env->state->parse, new_line);
+  ParseLine new_line = array_new();
+  array_reserve(&new_line, 1);
+  array_push(&env->state->parse, new_line);
 }
 
 static ParseLine *ensure_parse_buffer(Env *env) {
   ParseLines *buffer = &env->state->parse;
-  if (buffer->len == 0) push_parse_buffer_line(env);
+  if (buffer->size == 0) push_parse_buffer_line(env);
   if (is_newline(PEEK)) push_parse_buffer_line(env);
-  return buffer->data + buffer->len - 1;
+  return array_get(buffer, buffer->size - 1);
 }
 
 static void append_parse_buffer(Env *env) {
@@ -1173,7 +1132,7 @@ static void append_parse_buffer(Env *env) {
     env->debug.marked_line++;
     env->debug.start_line++;
   }
-  else if (column(env) >= current_line->len) VEC_PUSH(current_line, PEEK);
+  else if (column(env) >= current_line->size) array_push(current_line, PEEK);
 }
 
 static void fill_parse_buffer(Env *env) {
@@ -1184,7 +1143,7 @@ static void fill_parse_buffer(Env *env) {
 static bool seq(Env *env, const char *restrict s);
 
 static void print_lookahead(Env *env) {
-  dbg("lookahead: %.*ls\n", env->state->lookahead.len, env->state->lookahead.data);
+  dbg("lookahead: %.*ls\n", env->state->lookahead.size, env->state->lookahead.contents);
 }
 
 static const char * space = "<space>";
@@ -1204,10 +1163,10 @@ static const char * show_char(int32_t c) {
 }
 
 static void print_lookahead_chars_from(Env *env, uint32_t start) {
-  if (start < env->state->lookahead.len) {
+  if (start < env->state->lookahead.size) {
     dbg("lookahead from %d: ", start);
-    for (; start < env->state->lookahead.len; start++) {
-      int32_t c = env->state->lookahead.data[start];
+    for (; start < env->state->lookahead.size; start++) {
+      int32_t c = *array_get(&env->state->lookahead, start);
       const char * s = show_char(c);
       if (s == NULL) dbg("%lc", c);
       else dbg("%s", s);
@@ -1215,15 +1174,15 @@ static void print_lookahead_chars_from(Env *env, uint32_t start) {
     dbg("\n");
   }
   else
-    dbg("print_lookahead_chars_from: Too large (%d / %d)", start, env->state->lookahead.len);
+    dbg("print_lookahead_chars_from: Too large (%d / %d)", start, env->state->lookahead.size);
 }
 
 static void debug_contexts(Env *env) {
-  if (env->state->contexts.len == 0) dbg("empty");
+  if (env->state->contexts.size == 0) dbg("empty");
   bool empty = true;
-  for (size_t i = 0; i < env->state->contexts.len; i++) {
+  for (size_t i = 0; i < env->state->contexts.size; i++) {
     if (!empty) dbg("-");
-    Context ctx = env->state->contexts.data[i];
+    Context ctx = *array_get(&env->state->contexts, i);
     if (ctx.sort == ModuleHeader) dbg("pre");
     else if (ctx.sort == Braces) dbg("brace");
     else if (ctx.sort == TExp) dbg("texp");
@@ -1321,13 +1280,13 @@ static void dump_parse_metadata(Env *env) {
   Debug *debug = &env->debug;
   dbg(
       "lines: %d | start_line: %d | start_col: %d | marked_line: %d | marked: %d | end_col: %d | persist lines: %d\n",
-      env->state->parse.len,
+      env->state->parse.size,
       debug->start_line,
       debug->start_col,
       debug->marked_line,
       debug->marked,
       debug->end_col,
-      env->state->parse.len - debug->marked_line
+      env->state->parse.size - debug->marked_line
   );
 }
 
@@ -1341,16 +1300,16 @@ static void dump_parse_metadata(Env *env) {
 void debug_parse(Env *env) {
   Debug *debug = &env->debug;
   ParseLines *buffer = &env->state->parse;
-  uint32_t lines = buffer->len;
+  uint32_t lines = buffer->size;
   dbg("-----------------------\n");
   // For investigating mistakes in the debugging code.
   if (debug_parse_metadata) dump_parse_metadata(env);
   if (lines > 0) {
     color(4);
     for (uint32_t i = 0; i < lines; i++) {
-      ParseLine *line = buffer->data + i;
-      int32_t *buf = line->data;
-      if (line->data == 0) break;
+      ParseLine *line = array_get(buffer, i);
+      int32_t *buf = line->contents;
+      if (line->contents == 0) break;
       uint32_t pos = 0;
 
       if (debug->start_line == lines - 1 - i) {
@@ -1368,7 +1327,7 @@ void debug_parse(Env *env) {
         color(5);
       }
 
-      while (pos < line->len) { dbg("%lc", buf[pos]); pos++; }
+      while (pos < line->size) { dbg("%lc", buf[pos]); pos++; }
 
       dbg("\n");
     }
@@ -1378,14 +1337,14 @@ void debug_parse(Env *env) {
 }
 
 static unsigned serialize_parse_lines(char *cursor, ParseLines *parse, unsigned to_copy) {
-  for (unsigned i = 0; i < parse->len; i++) {
-    ParseLine *line = &parse->data[i];
-    unsigned line_size = line->len * sizeof(uint32_t);
+  for (unsigned i = 0; i < parse->size; i++) {
+    ParseLine *line = array_get(parse, i);
+    unsigned line_size = line->size * sizeof(uint32_t);
     to_copy += line_size + sizeof(uint32_t);
     if (to_copy > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) return 0;
-    *((uint32_t *) cursor) = line->len;
-    cursor += sizeof(line->len);
-    memcpy(cursor, line->data, line_size);
+    *((uint32_t *) cursor) = line->size;
+    cursor += sizeof(line->size);
+    memcpy(cursor, line->contents, line_size);
     cursor += line_size;
   }
   return to_copy;
@@ -1393,25 +1352,25 @@ static unsigned serialize_parse_lines(char *cursor, ParseLines *parse, unsigned 
 
 static void deserialize_parse_lines(const char *cursor, ParseLines *parse, uint32_t len) {
   // Ensure ParseLines has room for at _least_ as many lines as the new state
-  VEC_GROW(parse, len);
+  array_reserve(parse, len);
   for (unsigned i = 0; i < len; i++) {
     // If the new state has more lines, properly initialize them.
-    if (i >= parse->len) { VEC_PUSH(parse, (ParseLine) {.len = 0}); }
-    ParseLine *line = &parse->data[i];
+    if (i >= parse->size) { array_push(parse, (ParseLine) array_new()); }
+    ParseLine *line = array_get(parse, i);
     uint32_t line_len = *((uint32_t *) cursor);
     cursor += sizeof(uint32_t);
-    VEC_GROW(line, line_len);
-    line->len = line_len;
-    unsigned line_size = line->len * sizeof(uint32_t);
-    memcpy(line->data, cursor, line_size);
+    array_reserve(line, line_len);
+    line->size = line_len;
+    unsigned line_size = line->size * sizeof(uint32_t);
+    memcpy(line->contents, cursor, line_size);
     cursor += line_size;
   }
   // Free the excessive lines in the previous since we can't check in the next round whether there was a line in
   // a slot before and reuse the pointer.
-  // This only happens when we didn't push any lines above, which would reset parse->len to len.
-  for (unsigned i = parse->len; i > len; i--) { VEC_FREE(&parse->data[i - 1]); }
+  // This only happens when we didn't push any lines above, which would reset parse->size to len.
+  for (unsigned i = parse->size; i > len; i--) { array_delete(array_get(parse, i - 1)); }
   // Truncate ParseLines in case the new state has fewer lines
-  parse->len = len;
+  parse->size = len;
 }
 
 void debug_finish(Env *env, Symbol result) {
@@ -1423,7 +1382,7 @@ void debug_finish(Env *env, Symbol result) {
   dbg("\n\n");
   fill_parse_buffer(env);
   debug_parse(env);
-  env->state->parse.len -= env->debug.marked_line;
+  env->state->parse.size -= env->debug.marked_line;
 }
 
 #endif
@@ -1934,7 +1893,7 @@ static Symbol end_layout_brace(Env *env) {
 static Symbol end_layout_indent(Env *env) {
   if (valid(env, END) && indent_less(env, env->state->newline.indent)) {
     if (top_layout(env)) {
-      VEC_BACK(&env->state->contexts).indent = env->state->newline.indent;
+      array_back(&env->state->contexts)->indent = env->state->newline.indent;
       return update_state("end top layout");
     }
     else {
@@ -2018,9 +1977,9 @@ static Symbol end_layout_deriving(Env *env) {
  * Return `true` if there is a `TExp` context on the stack and only layouts above it.
  */
 static bool layouts_in_texp(Env *env) {
-  if (is_layout_context(env) && (env->state->contexts.len > 1)) {
-    for (int32_t i = (int32_t) env->state->contexts.len - 2; i >= 0; i--) {
-      Context *cur = env->state->contexts.data + i;
+  if (is_layout_context(env) && (env->state->contexts.size > 1)) {
+    for (int32_t i = (int32_t) env->state->contexts.size - 2; i >= 0; i--) {
+      Context *cur = array_get(&env->state->contexts, i);
       if (cur->sort == TExp || cur->sort == Braces) return true;
       else if (cur->sort > Braces) break;
     }
@@ -2055,8 +2014,8 @@ static Symbol token_end_layout_texp(Env *env) {
 }
 
 static Symbol force_end_context(Env *env) {
-  for (int32_t i = (int32_t) env->state->contexts.len - 1; i >= 0; i--) {
-    ContextSort ctx = env->state->contexts.data[i].sort;
+  for (int32_t i = (int32_t) env->state->contexts.size - 1; i >= 0; i--) {
+    ContextSort ctx = array_get(&env->state->contexts, i)->sort;
     Symbol s = context_end_sym(ctx);
     pop(env);
     if (s != FAIL && valid(env, s)) return finish(s, "force_end_context");
@@ -2571,7 +2530,7 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
  */
 static Symbol block_comment(Env *env) {
   Symbol sym = comment_type(env);
-  consume_block_comment(env, env->state->lookahead.len);
+  consume_block_comment(env, env->state->lookahead.size);
   return finish_marked(env, sym, "block_comment");
 }
 
@@ -3400,7 +3359,7 @@ static bool process_result(Env *env, Symbol result) {
       result = force_end_context(env);
       if (result == FAIL) {
         dbg("eof | context cap: %d | lookahead cap: %d | parse cap: %d\n",
-          env->state->contexts.cap, env->state->lookahead.cap, env->state->parse.cap);}
+          env->state->contexts.capacity, env->state->lookahead.capacity, env->state->parse.capacity);}
     }
   }
   return set_result_symbol(env, result);
@@ -3433,11 +3392,11 @@ typedef struct {
  * This function allocates the persistent state of the parser that is passed into the other API functions.
  */
 void *tree_sitter_haskell_external_scanner_create() {
-  State *state = calloc(sizeof(State), 1);
-  VEC_RESIZE(&state->contexts, 8);
-  VEC_RESIZE(&state->lookahead, 8);
+  State *state = ts_calloc(sizeof(State), 1);
+  array_reserve(&state->contexts, 8);
+  array_reserve(&state->lookahead, 8);
 #if DEBUG
-  VEC_RESIZE(&state->parse, 20);
+  array_reserve(&state->parse, 20);
 #endif
   return state;
 }
@@ -3453,15 +3412,15 @@ bool tree_sitter_haskell_external_scanner_scan(void *payload, TSLexer *lexer, co
 
 unsigned tree_sitter_haskell_external_scanner_serialize(void *payload, char *buffer) {
   State *state = (State *) payload;
-  Persist persist = {.contexts = state->contexts.len, .newline = state->newline};
+  Persist persist = {.contexts = state->contexts.size, .newline = state->newline};
 #if DEBUG
-  persist.parse = state->parse.len;
+  persist.parse = state->parse.size;
 #endif
   unsigned contexts_size = persist.contexts * sizeof(Context);
   memcpy(buffer, &persist, sizeof(Persist));
   unsigned to_copy = sizeof(Persist) + contexts_size;
   if (to_copy > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) return 0;
-  memcpy(buffer + sizeof(Persist), state->contexts.data, contexts_size);
+  memcpy(buffer + sizeof(Persist), state->contexts.contents, contexts_size);
 #if DEBUG
   to_copy = serialize_parse_lines(buffer + sizeof(Persist) + contexts_size, &state->parse, to_copy);
 #endif
@@ -3481,13 +3440,13 @@ void tree_sitter_haskell_external_scanner_deserialize(void *payload, const char 
   }
   unsigned contexts_size = persist->contexts * sizeof(Context);
   state->newline = persist->newline;
-  VEC_GROW(&state->contexts, persist->contexts);
-  state->contexts.len = persist->contexts;
+  array_reserve(&state->contexts, persist->contexts);
+  state->contexts.size = persist->contexts;
   if (length > 0)
-    memcpy(state->contexts.data, buffer + sizeof(Persist), contexts_size);
-  state->lookahead.len = 0;
-  state->lookahead.offset = 0;
-  VEC_GROW(&state->lookahead, 8);
+    memcpy(state->contexts.contents, buffer + sizeof(Persist), contexts_size);
+  array_clear(&state->lookahead);
+  state->offset = 0;
+  array_reserve(&state->lookahead, 8);
 #if DEBUG
   if (length > 0)
     deserialize_parse_lines(buffer + sizeof(Persist) + contexts_size, &state->parse, persist->parse);
@@ -3499,10 +3458,10 @@ void tree_sitter_haskell_external_scanner_destroy(void *payload) {
 #if DEBUG
   palette();
   ParseLines *parse = &state->parse;
-  for (unsigned i = 0; i < parse->len; i++) VEC_FREE(&parse->data[i]);
-  VEC_FREE(parse);
+  for (unsigned i = 0; i < parse->size; i++) array_delete(array_get(parse, i));
+  array_delete(parse);
 #endif
-  VEC_FREE(&state->contexts);
-  VEC_FREE(&state->lookahead);
-  free(state);
+  array_delete(&state->contexts);
+  array_delete(&state->lookahead);
+  ts_free(state);
 }
