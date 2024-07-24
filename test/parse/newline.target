@@ -1,0 +1,53 @@
+(haskell [0, 0] - [24, 0]
+  declarations: (declarations [0, 0] - [24, 0]
+    (bind [0, 0] - [0, 5]
+      name: (variable [0, 0] - [0, 1])
+      match: (match [0, 2] - [0, 5]
+        expression: (variable [0, 4] - [0, 5])))
+    (bind [2, 0] - [2, 5]
+      name: (variable [2, 0] - [2, 1])
+      match: (match [2, 2] - [2, 5]
+        expression: (variable [2, 4] - [2, 5])))
+    (bind [4, 0] - [9, 13]
+      name: (variable [4, 0] - [4, 1])
+      match: (match [4, 2] - [4, 5]
+        expression: (variable [4, 4] - [4, 5]))
+      binds: (local_binds [6, 4] - [9, 13]
+        decl: (bind [6, 4] - [9, 13]
+          name: (variable [6, 4] - [6, 5])
+          match: (match [6, 6] - [6, 9]
+            expression: (variable [6, 8] - [6, 9]))
+          (comment [7, 2] - [7, 7])
+          binds: (local_binds [9, 8] - [9, 13]
+            decl: (bind [9, 8] - [9, 13]
+              name: (variable [9, 8] - [9, 9])
+              match: (match [9, 10] - [9, 13]
+                expression: (variable [9, 12] - [9, 13])))))))
+    (comment [11, 0] - [11, 5])
+    (bind [12, 0] - [21, 9]
+      name: (variable [12, 0] - [12, 1])
+      match: (match [12, 2] - [12, 5]
+        expression: (variable [12, 4] - [12, 5]))
+      binds: (local_binds [14, 4] - [21, 9]
+        decl: (bind [14, 4] - [15, 7]
+          name: (variable [14, 4] - [14, 5])
+          match: (match [14, 6] - [15, 7]
+            expression: (variable [15, 6] - [15, 7])))
+        (comment [16, 0] - [16, 5])
+        decl: (bind [17, 4] - [19, 15]
+          name: (variable [17, 4] - [17, 5])
+          match: (match [17, 6] - [17, 9]
+            expression: (variable [17, 8] - [17, 9]))
+          binds: (local_binds [19, 8] - [19, 15]
+            decl: (bind [19, 8] - [19, 15]
+              name: (variable [19, 8] - [19, 10])
+              match: (match [19, 11] - [19, 15]
+                expression: (variable [19, 13] - [19, 15])))))
+        decl: (bind [21, 4] - [21, 9]
+          name: (variable [21, 4] - [21, 5])
+          match: (match [21, 6] - [21, 9]
+            expression: (variable [21, 8] - [21, 9])))))
+    (bind [23, 0] - [23, 5]
+      name: (variable [23, 0] - [23, 1])
+      match: (match [23, 2] - [23, 5]
+        expression: (variable [23, 4] - [23, 5])))))
