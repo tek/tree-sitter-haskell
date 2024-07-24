@@ -2678,6 +2678,8 @@ static Symbol resolve_semicolon(Env *env, Lexed next) {
  *   executed before for the same newline.
  *
  * - `skip_semi` was set because the previous line ended with an explicit semicolon.
+ *
+ * - The preceding token is an `if`, which behaves specially, probably due to the possibility of a multi-way if layout.
  */
 static Symbol semicolon(Env *env) {
   if (
@@ -2686,6 +2688,8 @@ static Symbol semicolon(Env *env) {
       !(env->state->newline.no_semi || env->state->newline.skip_semi)
       &&
       indent_lesseq(env, env->state->newline.indent)
+      &&
+      !valid(env, START_IF)
      ) {
     env->state->newline.no_semi = true;
     return finish(SEMICOLON, "newline");

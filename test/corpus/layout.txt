@@ -3403,3 +3403,25 @@ a = a
               (variable)
               (comment)
               (variable))))))))
+
+================================================================================
+layout: if expression on new line with equal indent in do
+================================================================================
+
+a = do
+  if
+  a then a else a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (do
+          (exp
+            (conditional
+              (variable)
+              (variable)
+              (variable))))))))
