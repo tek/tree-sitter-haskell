@@ -163,6 +163,13 @@
   export EM_CACHE="''${TREE_SITTER_LIBDIR}/.emscriptencache"
   '';
 
+  initConfig = ''
+  if [[ ! -f ''${XDG_CONFIG_HOME}/tree-sitter/config.json ]]
+  then
+    tree-sitter init-config
+  fi
+  '';
+
   shell = pkgs.mkShell {
     name = "tree-sitter-haskell";
     packages = [
@@ -326,6 +333,7 @@
     ];
     text = ''
     ${setup}
+    ${initConfig}
     npm install
     ${tests}
     '';
