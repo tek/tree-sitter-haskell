@@ -2460,9 +2460,9 @@ static Symbol cpp_line(Env *env) {
 /**
  * Distinguish between haddocks and plain comments by matching on the first non-whitespace character.
  */
-static Symbol comment_type(Env *env) {
+static Symbol comment_type(Env *env, bool line_comment) {
   uint32_t i = 2;
-  while (peek(env, i) == '-') i++;
+  while (line_comment && peek(env, i) == '-') i++;
   while (not_eof(env)) {
     int32_t c = peek(env, i++);
     if (c == '|' || c == '^') return HADDOCK;
@@ -2476,7 +2476,7 @@ static Symbol comment_type(Env *env) {
  * Could be improved by requiring equal indent.
  */
 static Symbol inline_comment(Env *env) {
-  Symbol sym = comment_type(env);
+  Symbol sym = comment_type(env, true);
   do {
     take_line(env);
     MARK("inline comment");
@@ -2529,7 +2529,7 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
  * outermost comment isn't closed prematurely.
  */
 static Symbol block_comment(Env *env) {
-  Symbol sym = comment_type(env);
+  Symbol sym = comment_type(env, false);
   consume_block_comment(env, env->state->lookahead.size);
   return finish_marked(env, sym, "block_comment");
 }
