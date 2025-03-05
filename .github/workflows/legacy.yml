@@ -24,7 +24,6 @@ jobs:
           git restore .gitignore
 
       - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Generate parser
         run: nix -L run .#gen-parser
