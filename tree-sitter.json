@@ -1,0 +1,39 @@
+{
+  "grammars": [
+    {
+      "name": "hs",
+      "camelcase": "Hs",
+      "scope": "source.haskell",
+      "path": ".",
+      "file-types": [
+        "hs",
+        "hs-boot"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "injection-regex": "^(hs|haskell)$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "Haskell grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Torsten Schmits"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/tek/tree-sitter-haskell"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}

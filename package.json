@@ -50,18 +50,5 @@
     "test": "test/main",
     "libs": "test/parse-libs",
     "libs-wasm": "test/parse-libs wasm"
-  },
-  "tree-sitter": [
-    {
-      "scope": "source.haskell",
-      "file-types": [
-        "hs",
-        "hs-boot"
-      ],
-      "highlights": [
-        "queries/highlights.scm"
-      ],
-      "injection-regex": "^(hs|haskell)$"
-    }
-  ]
+  }
 }
