@@ -89,6 +89,7 @@ These extensions are supported ✅, unsupported ❌ or not applicable because th
 * MonadFailDesugaring ➖️
 * MonoLocalBinds ➖️
 * MonomorphismRestriction ➖️
+* MultilineStrings ✅
 * MultiParamTypeClasses ✅
 * MultiWayIf ✅
 * NamedFieldPuns ✅
