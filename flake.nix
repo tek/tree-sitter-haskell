@@ -3,7 +3,7 @@
 
   inputs = {
     hix.url = "github:tek/hix";
-    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/5a3e3f6a5aee675afb1c75b7b04a49b3beda0da6";
+    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
     nix-filter.url = "github:numtide/nix-filter";
   };

@@ -28,6 +28,7 @@
     include = [
       "grammar"
       (filter.matchExt "js")
+      "tree-sitter.json"
     ];
   };
 
@@ -57,6 +58,7 @@
       "src"
       (filter.matchExt "h")
       "src/scanner.c"
+      "tree-sitter.json"
     ];
   };
 

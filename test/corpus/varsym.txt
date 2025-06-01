@@ -114,12 +114,13 @@ f = a =>> a
   (declarations
     (bind
       (variable)
-      (match
-        (apply
-          (variable)
+        (ERROR
+          (match
+            (variable)))
+        (match
           (ERROR
             (UNEXPECTED '>'))
-          (variable))))
+          (variable)))
     (bind
       (variable)
       (match
