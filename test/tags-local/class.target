@@ -1,0 +1,7 @@
+A.B       	 | module  	def (0, 7) - (0, 10) `module A.B where`
+A         	 | interface	def (3, 6) - (3, 7) `class A a where`	"Documentation"
+meth1     	 | method  	def (5, 2) - (5, 7) `meth1 :: Int -> a`	"Documentaton"
+meth2     	 | method  	def (9, 2) - (9, 7) `meth2 :: Int -> a`	"Documentaton"
+A         	 | implementation	ref (13, 9) - (13, 10) `instance A Int where`	"Documentation"
+meth1     	 | method  	def (15, 2) - (15, 7) `meth1 a = a`	"Documentaton"
+meth2     	 | method  	def (18, 2) - (18, 7) `meth2 a = a`	"Documentaton"

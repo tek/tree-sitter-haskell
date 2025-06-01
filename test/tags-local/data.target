@@ -1,0 +1,3 @@
+A.B       	 | module  	def (1, 7) - (1, 10) `module A.B where`	"Documentation"
+A         	 | class   	def (4, 5) - (4, 6) `data A = A Int`	"Documentation"
+A         	 | class   	def (6, 8) - (6, 9) `newtype A = A Int`

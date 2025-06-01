@@ -5,3 +5,4 @@ set -e
 tree-sitter test
 test/parse/run.bash
 test/query/run.bash
+test/tags-local/run.bash

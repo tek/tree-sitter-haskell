@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
 
+      - name: Init config
+        run: |
+          mkdir -p /home/runner/.config/tree-sitter
+          printf '{"parser-directories":["%q"]}' "${GITHUB_WORKSPACE%/*}" > "/home/runner/.config/tree-sitter/config.json"
+
       - name: Run tests
         run: nix -L run .#ci
 

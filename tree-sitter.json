@@ -12,6 +12,9 @@
       "highlights": [
         "queries/highlights.scm"
       ],
+      "tags": [
+        "queries/tags.scm"
+      ],
       "injection-regex": "^(hs|haskell)$"
     }
   ],

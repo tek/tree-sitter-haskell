@@ -1,0 +1,9 @@
+fun1      	 | function	def (1, 0) - (1, 4) `fun1 :: Maybe Int -> String -> IO Bool`	"Documentation fun1"
+fun1      	 | function	def (2, 0) - (2, 4) `fun1 (Just i) s =`
+fun2      	 | function	def (8, 0) - (8, 4) `fun2 :: a -> a`	"Documentation fun2"
+fun2      	 | function	def (9, 0) - (9, 4) `fun2 a = a`
+equation  	 | function	def (12, 0) - (12, 8) `equation a = 1`	"Documentation equation"
+bind1     	 | function	def (15, 0) - (15, 5) `bind1 :: Int`	"Documentation bind1"
+bind1     	 | variable	def (16, 0) - (16, 5) `bind1 = 1`
+bind2     	 | function	def (19, 0) - (19, 5) `bind2 :: Int`
+bind2     	 | variable	def (20, 0) - (20, 5) `bind2 = 1`
