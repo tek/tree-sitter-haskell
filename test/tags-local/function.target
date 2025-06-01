@@ -1,0 +1,6 @@
+a         	 | variable	def (0, 0) - (0, 1) `a = 1`
+fun       	 | signature	def (3, 0) - (3, 3) `fun :: Maybe Int -> String -> IO Bool`	"Documentation"
+fun       	 | function	def (4, 0) - (4, 3) `fun (Just i) s =`
+fun       	 | variable	def (10, 0) - (10, 3) `fun = 1`	"Documentation"
+bind      	 | signature	def (13, 0) - (13, 4) `bind :: Int`
+bind      	 | variable	def (14, 0) - (14, 4) `bind = 1`

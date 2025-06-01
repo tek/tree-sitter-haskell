@@ -311,6 +311,7 @@
   tree-sitter test
   test/parse/run.bash
   test/query/run.bash
+  test/tags/run.bash
   '';
 
   tests = script "tree-sitter-haskell-tests" ''

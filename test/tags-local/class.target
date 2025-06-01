@@ -1,0 +1,5 @@
+a         	 | variable	def (0, 0) - (0, 1) `a = 1`
+A         	 | interface	def (3, 6) - (3, 7) `class A a where`	"Documentation"
+meth      	 | method  	def (5, 2) - (5, 6) `meth a = a`
+A         	 | implementation	ref (8, 9) - (8, 10) `instance A Int where`	"Documentation"
+meth      	 | method  	def (9, 2) - (9, 6) `meth a = a`
