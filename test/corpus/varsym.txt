@@ -694,7 +694,7 @@ type A = a % a
               (module_id))
             (operator))
           (variable))))
-    (type_synomym
+    (type_synonym
       (name)
       (infix
         (variable)
@@ -911,18 +911,18 @@ a = (a *)
               (module_id))
             (operator))
           (variable))))
-    (type_synomym
+    (type_synonym
       (name)
       (function
         (star)
         (star)))
-    (type_synomym
+    (type_synonym
       (name)
       (parens
         (function
           (star)
           (star))))
-    (type_synomym
+    (type_synonym
       (name)
       (infix
         (name)
@@ -1539,7 +1539,7 @@ type A = a - 1
         (variable))
       (match
         (variable)))
-    (type_synomym
+    (type_synonym
       (name)
       (infix
         (variable)
