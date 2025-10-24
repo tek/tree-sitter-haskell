@@ -332,6 +332,7 @@ typedef enum {
   LHash,
   LBar,
   LArrow,
+  LLArrow,
   LCArrow,
   LTexpCloser,
   LQuoteClose,
@@ -374,6 +375,7 @@ static const char *token_names[] = {
   "hash",
   "bar",
   "arrow",
+  "linear-arrow",
   "ctr",
   "texp-closer",
   "quote-close",
@@ -2125,8 +2127,9 @@ static Lexed lex_symop(Env *env) {
         else if (opening_token(env, 1)) return LDotOpen;
         else return LSymop;
       case 0x2192: // →
-      case 0x22b8: // ⊸
         return LArrow;
+      case 0x22b8: // ⊸
+        return LLArrow;
       case 0x21d2: // ⇒
         return LCArrow;
       case '=':
@@ -2176,7 +2179,7 @@ static Lexed lex_symop(Env *env) {
   }
   else switch (c1) {
     case '-':
-      if (seq(env, "->.")) return LArrow;
+      if (len == 3 && seq(env, "->.")) return LLArrow;
       break;
     case '.':
       return LDotSymop;
@@ -2738,6 +2741,7 @@ static Symbol process_token_safe(Env *env, Lexed next) {
       SEQ(token_end_layout_texp(env));
       return end_layout_infix(env);
     case LArrow:
+    case LLArrow:
       if (!valid(env, ARROW)) return token_end_layout_texp(env);
       break;
     case LTexpCloser:
@@ -2782,6 +2786,9 @@ static Symbol process_token_symop(Env *env, bool whitespace, Lexed next) {
     case LSymopSpecial:
       SEQ(left_section_op(env, symop_lookahead(env)));
       if (valid(env, MINUS) && match_symop(env, "-")) return finish(MINUS, "symop");
+      break;
+    case LLArrow:
+      if (!valid(env, ARROW)) return finish_symop(env, VARSYM);
       break;
     case LUnboxedClose:
     case LHash:

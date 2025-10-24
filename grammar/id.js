@@ -68,7 +68,7 @@ module.exports = {
   _tyconids: $ => choice($._qtyconid, $._tyconid),
 
   _tycon_arrow: $ => parens($, alias($._arrow, $.operator)),
-  _qualified_arrow: $ => qualified($, alias($._arrow, $.operator)),
+  _qualified_arrow: $ => qualified($, alias(choice($._arrow, $._linear_arrow), $.operator)),
   _qtycon_arrow: $ => parens($, alias($._qualified_arrow, $.qualified)),
 
   _tycon: $ => choice($._tyconid, $._pvarsym, alias($._tycon_arrow, $.prefix_id), $._pconsym),

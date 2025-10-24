@@ -115,6 +115,7 @@ type A = (,)
 type A = (,,)
 type A = (->)
 type A = (A.A.->)
+type A = (A.A.->.)
 
 --------------------------------------------------------------------------------
 
@@ -133,6 +134,14 @@ type A = (A.A.->)
       (name)
       (prefix_id
         (operator)))
+    (type_synonym
+      (name)
+      (prefix_id
+        (qualified
+          (module
+            (module_id)
+            (module_id))
+          (operator))))
     (type_synonym
       (name)
       (prefix_id
@@ -776,6 +785,23 @@ type A = A ⊸ A
       (name)
       (linear_function
         (name)
+        (name)))))
+
+================================================================================
+type: varsym starting with linear arrow
+================================================================================
+
+type A = A ->.. A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (type_synonym
+      (name)
+      (infix
+        (name)
+        (operator)
         (name)))))
 
 ================================================================================
