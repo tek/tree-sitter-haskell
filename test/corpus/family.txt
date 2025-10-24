@@ -419,6 +419,12 @@ type family A a = r
 type family A a = (r :: A) | r -> a where
   A a = a
 
+type family A a :: r | r -> a where
+  A a = a
+
+type family A a | a -> a where
+  A a = a
+
 --------------------------------------------------------------------------------
 
 (haskell
@@ -441,6 +447,33 @@ type family A a = (r :: A) | r -> a where
           (signature
             (variable)
             (name))))
+      (type_family_injectivity
+        (variable)
+        (variable))
+      (equations
+        (equation
+          (name)
+          (type_patterns
+            (variable))
+          (variable))))
+    (type_family
+      (name)
+      (type_params
+        (variable))
+      (variable)
+      (type_family_injectivity
+        (variable)
+        (variable))
+      (equations
+        (equation
+          (name)
+          (type_patterns
+            (variable))
+          (variable))))
+    (type_family
+      (name)
+      (type_params
+        (variable))
       (type_family_injectivity
         (variable)
         (variable))
