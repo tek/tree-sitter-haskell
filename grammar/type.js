@@ -404,14 +404,10 @@ module.exports = {
     field('determined', repeat1($.variable)),
   ),
 
-  _tyfam_inj: $ => seq(
-    $.type_family_result,
-    optional($.type_family_injectivity),
-  ),
-
   _tyfam: $ => seq(
     $._type_head,
-    optional(choice($._kind_annotation, $._tyfam_inj)),
+    optional(choice($._kind_annotation, $.type_family_result)),
+    optional($.type_family_injectivity),
   ),
 
   _tyfam_equations: $ => layout($, field('equation', alias($._type_instance, $.equation))),

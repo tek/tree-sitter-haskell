@@ -1921,27 +1921,6 @@
         }
       ]
     },
-    "_tyfam_inj": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "type_family_result"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "type_family_injectivity"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        }
-      ]
-    },
     "_tyfam": {
       "type": "SEQ",
       "members": [
@@ -1961,9 +1940,21 @@
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "_tyfam_inj"
+                  "name": "type_family_result"
                 }
               ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "type_family_injectivity"
             },
             {
               "type": "BLANK"
