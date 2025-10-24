@@ -11674,8 +11674,17 @@
             "content": {
               "type": "ALIAS",
               "content": {
-                "type": "SYMBOL",
-                "name": "_arrow"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_arrow"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_linear_arrow"
+                  }
+                ]
               },
               "named": true,
               "value": "operator"
