@@ -2479,6 +2479,10 @@ static Symbol comment_type(Env *env, bool line_comment) {
 }
 
 static bool continue_inline_comment(Env *env, Symbol current) {
+  S_ADVANCE;
+  reset_lookahead(env);
+  take_space_from(env, 0);
+  reset_lookahead(env);
   if (line_comment_herald(env)) {
     reset_lookahead(env);
     return current == HADDOCK || comment_type_char(env, true, 0) == COMMENT;
@@ -2495,8 +2499,6 @@ static Symbol inline_comment(Env *env) {
   do {
     take_line(env);
     MARK("inline comment");
-    S_ADVANCE;
-    reset_lookahead(env);
   } while (continue_inline_comment(env, sym));
   return sym;
 }
