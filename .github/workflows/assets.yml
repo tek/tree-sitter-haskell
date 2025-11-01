@@ -19,14 +19,14 @@ jobs:
 
       - run: nix -L build .#parser-src
       - name: Upload parser sources
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tree-sitter-haskell-src
           path: result/src
 
       - run: nix -L build .#parser-wasm
       - name: Upload wasm binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tree-sitter-haskell-wasm
           path: result/tree-sitter-haskell.wasm
