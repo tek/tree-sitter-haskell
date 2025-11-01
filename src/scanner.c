@@ -2460,18 +2460,30 @@ static Symbol cpp_line(Env *env) {
 // Comments
 // --------------------------------------------------------------------------------------------------------
 
-/**
- * Distinguish between haddocks and plain comments by matching on the first non-whitespace character.
- */
-static Symbol comment_type(Env *env, bool line_comment) {
-  uint32_t i = 2;
-  while (line_comment && peek(env, i) == '-') i++;
+static Symbol comment_type_char(Env *env, bool line_comment, uint32_t i) {
   while (not_eof(env)) {
     int32_t c = peek(env, i++);
     if (c == '|' || c == '^') return HADDOCK;
     else if (!is_space_char(c)) break;
   }
   return COMMENT;
+}
+
+/**
+ * Distinguish between haddocks and plain comments by matching on the first non-whitespace character.
+ */
+static Symbol comment_type(Env *env, bool line_comment) {
+  uint32_t i = 2;
+  while (line_comment && peek(env, i) == '-') i++;
+  return comment_type_char(env, line_comment, i);
+}
+
+static bool continue_inline_comment(Env *env, Symbol current) {
+  if (line_comment_herald(env)) {
+    reset_lookahead(env);
+    return current == HADDOCK || comment_type_char(env, true, 0) == COMMENT;
+  }
+  else return false;
 }
 
 /**
@@ -2485,7 +2497,7 @@ static Symbol inline_comment(Env *env) {
     MARK("inline comment");
     S_ADVANCE;
     reset_lookahead(env);
-  } while (line_comment_herald(env));
+  } while (continue_inline_comment(env, sym));
   return sym;
 }
 
