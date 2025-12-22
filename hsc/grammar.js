@@ -1,20 +1,26 @@
 const haskell = require("../grammar.js")
+const {
+  sep,
+} = require('../grammar/util.js')
 
 module.exports = grammar(haskell, {
   name: 'hsc',
 
-  externals: ($, previous) => previous,
-
-  supertypes: ($, previous) => previous,
-
-  precedences: ($, previous) => previous,
-
-  conflicts: ($, previous) => previous,
-
-  inline: ($, previous) => previous,
-
   rules: {
-    haskell: ($, previous) => previous,
+
+    _exp: ($, previous) => choice(previous, $.hsc),
+
+    hsc: $ => seq(
+      "#{",
+      $.hsc_kind,
+      sep(',', $.hsc_arg),
+      "}",
+    ),
+
+    hsc_kind: $ => $.variable,
+
+    hsc_arg: $ => $.variable,
+
   },
 
 })
