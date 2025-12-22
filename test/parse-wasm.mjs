@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {readFileSync} from 'fs'
-import Parser from 'web-tree-sitter'
+import {Parser, Language} from 'web-tree-sitter'
 
 const base = 'TREE_SITTER_LIBDIR' in process.env ? process.env.TREE_SITTER_LIBDIR : '.'
 let files = []
@@ -30,8 +30,8 @@ function print_tree(tree) {
   let indent_level = 0
   let did_visit_children = false
   while (true) {
-    let node = cursor.currentNode()
-    let is_named = node.isNamed()
+    let node = cursor.currentNode
+    let is_named = node.isNamed
     if (did_visit_children) {
       if (is_named) {
         process.stdout.write(')')
@@ -64,9 +64,9 @@ function print_tree(tree) {
 function find_error(tree) {
   const cursor = tree.walk()
   while (true) {
-    let node = cursor.currentNode()
-    if (node.hasError()) {
-      if (node.isError() || node.isMissing()) return node
+    let node = cursor.currentNode
+    if (node.hasError) {
+      if (node.isError || node.isMissing) return node
       else if (!cursor.gotoFirstChild()) return null
     } else if (!cursor.gotoNextSibling()) return null
   }
@@ -75,9 +75,9 @@ function find_error(tree) {
 function handle_error(file, node) {
   errors = true
   process.stdout.write(`${file} (`)
-  if (node.isMissing()) {
+  if (node.isMissing) {
     process.stdout.write('MISSING ')
-    if (node.isNamed()) process.stdout.write(node.type)
+    if (node.isNamed) process.stdout.write(node.type)
     else process.stdout.write(`"${node.type.replace('\n', '\\n')}"`)
   }
   else process.stdout.write(`${node.type} `)
@@ -87,8 +87,8 @@ function handle_error(file, node) {
 
 (async () => {
   await Parser.init()
-  let lang = await Parser.Language.load(base + '/haskell.wasm')
-  const parser = new Parser
+  let lang = await Language.load(base + '/haskell.wasm')
+  const parser = new Parser()
   parser.setLanguage(lang)
   for (const file of files) {
     const sourceCode = readFileSync(file, 'utf8')

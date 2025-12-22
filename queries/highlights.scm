@@ -145,10 +145,10 @@
 ; ----------------------------------------------------------------------------
 ; Functions and variables
 (decl
-  [
-   name: (variable) @function
-   names: (binding_list (variable) @function)
-  ])
+  name: (variable) @function)
+
+(decl/signature
+  names: (binding_list (variable) @function))
 
 (decl/bind
   name: (variable) @variable)

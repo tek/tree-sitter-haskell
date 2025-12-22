@@ -31,5 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: tree-sitter/setup-action/cli@v2
+        with:
+          tree-sitter-ref: 'v0.25.10'
       - run: tree-sitter generate
       - uses: tree-sitter/parser-test-action@v3
