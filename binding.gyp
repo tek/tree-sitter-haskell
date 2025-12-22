@@ -11,8 +11,9 @@
       "sources": [
         "bindings/node/binding.cc",
         "src/parser.c",
-        "src/scanner.c",
         "src/unicode.h",
+        "hsc/src/parser.c",
+        "hsc/src/scanner.c",
       ],
       "cflags_c": [
         "-std=c11",

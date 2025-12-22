@@ -1,6 +1,6 @@
 VERSION := 1.0.0
 
-LANGUAGE_NAME := tree-sitter-haskell
+LANGUAGE_NAME := tree-sitter-hsc
 
 # repository
 SRC_DIR := src

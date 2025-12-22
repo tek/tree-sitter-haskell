@@ -19,11 +19,14 @@
   "files": [
     "grammar.js",
     "grammar/*.js",
+    "hsc/grammar.js",
+    "hsc/package.json",
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",
     "queries/*",
-    "src/**"
+    "src/**",
+    "hsc/src/**"
   ],
   "dependencies": {
     "node-addon-api": "8.0.0",
@@ -43,7 +46,7 @@
     "web-tree-sitter": "^0.25.0"
   },
   "scripts": {
-    "preinstall": "tree-sitter generate",
+    "preinstall": "tree-sitter generate && tree-sitter generate -o hsc/src hsc/grammar.js",
     "install": "node-gyp-build",
     "postinstall": "node-gyp configure && node-gyp build",
     "prebuildify": "prebuildify --napi --strip",
