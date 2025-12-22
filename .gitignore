@@ -1,4 +1,5 @@
 /src/parser.c
+/hsc/src/parser.c
 /dist-newstyle
 /result
 /test/libs/*

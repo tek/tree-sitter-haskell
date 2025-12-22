@@ -1,0 +1,7 @@
+{
+  "main": "../bindings/node",
+  "private": true,
+  "scripts": {
+    "build": "tree-sitter generate"
+  }
+}

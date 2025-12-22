@@ -1,9 +1,9 @@
 {
   "grammars": [
     {
-      "name": "hs",
-      "camelcase": "Hs",
-      "scope": "source.haskell",
+      "name": "haskell",
+      "camelcase": "Haskell",
+      "scope": "source.hs",
       "path": ".",
       "file-types": [
         "hs",
@@ -16,6 +16,22 @@
         "queries/tags.scm"
       ],
       "injection-regex": "^(hs|haskell)$"
+    },
+    {
+      "name": "hsc",
+      "camelcase": "HaskellC",
+      "scope": "source.hsc",
+      "path": "hsc",
+      "file-types": [
+        "hsc"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "tags": [
+        "queries/tags.scm"
+      ],
+      "injection-regex": "^(hs|haskell|hsc)$"
     }
   ],
   "metadata": {

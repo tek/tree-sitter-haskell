@@ -19,97 +19,129 @@
   '';
 
   script = name: text: scriptErr name ''
-   set -e
-   ${text}
-   '';
+  set -e
+  ${text}
+  '';
 
   grammarSrc = filter {
     root = ../.;
     include = [
       "grammar"
       (filter.matchExt "js")
+      "hsc/grammar.js"
       "tree-sitter.json"
     ];
   };
 
-  parserGen = pkgs.stdenv.mkDerivation {
-    name = "tree-sitter-haskell-parser-sources";
-    inherit version;
-    src = grammarSrc;
-    nativeBuildInputs = [pkgs.nodejs pkgs.tree-sitter];
-
-    buildPhase = ''
-    runHook preBuild
-    tree-sitter generate
-    runHook postBuild
-    '';
-
-    installPhase = ''
-    runHook preInstall
-    install -Dt $out/src src/parser.c src/grammar.json src/node-types.json
-    runHook postInstall
-    '';
-
-  };
-
-  libSrc = filter {
+  sharedParserSrc = filter {
     root = ../.;
     include = [
-      "src"
       (filter.matchExt "h")
       "src/scanner.c"
       "tree-sitter.json"
     ];
   };
 
-  parserSrc = pkgs.symlinkJoin { name = "lib-source"; paths = [parserGen libSrc]; };
+  dialect = {name, dir}: let
 
-  parserLib = pkgs.stdenv.mkDerivation {
-    name = "tree-sitter-haskell-parser-lib";
-    inherit version;
-    src = parserSrc;
-    stripDebugList = ["haskell.so"];
+    parserGen = pkgs.stdenv.mkDerivation {
 
-    buildPhase = ''
-    runHook preBuild
-    $CC -fPIC -shared -Isrc -O2 -o haskell.so src/parser.c src/scanner.c
-    runHook postBuild
-    '';
+      name = "tree-sitter-${name}-parser-gen";
+      inherit version;
+      src = grammarSrc;
+      nativeBuildInputs = [pkgs.nodejs pkgs.tree-sitter];
 
-    installPhase = ''
-    runHook preInstall
-    install -Dt $out/lib haskell.so
-    runHook postInstall
-    '';
+      buildPhase = ''
+      runHook preBuild
+      cd ${dir}
+      tree-sitter generate
+      runHook postBuild
+      '';
 
+      installPhase = ''
+      runHook preInstall
+      install -Dt $out/src src/parser.c src/grammar.json src/node-types.json
+      runHook postInstall
+      '';
+
+    };
+
+    libSrc = filter {
+      root = ../${dir};
+      include = [
+        "src"
+      ];
+    };
+
+    parserSrc = pkgs.symlinkJoin {
+      name = "tree-sitter-${name}-parser-source";
+      paths = [sharedParserSrc parserGen libSrc];
+    };
+
+    parserLib = pkgs.stdenv.mkDerivation {
+      name = "tree-sitter-${name}-parser-lib";
+      inherit version;
+      src = parserSrc;
+      stripDebugList = ["${name}.so"];
+
+      buildPhase = ''
+      runHook preBuild
+      $CC -fPIC -shared -Isrc -O2 -o ${name}.so src/parser.c src/scanner.c
+      runHook postBuild
+      '';
+
+      installPhase = ''
+      runHook preInstall
+      install -Dt $out/lib ${name}.so
+      runHook postInstall
+      '';
+
+    };
+
+    parserWasm = pkgs.stdenv.mkDerivation {
+      name = "tree-sitter-${name}-parser-wasm";
+      inherit version;
+      src = parserSrc;
+      nativeBuildInputs = [pkgs.nodejs pkgs.tree-sitter pkgs.emscripten];
+
+      buildPhase = ''
+      runHook preBuild
+      mkdir -p .emscriptencache
+      export EM_CACHE=$(pwd)/.emscriptencache
+      tree-sitter build --wasm
+      runHook postBuild
+      '';
+
+      installPhase = ''
+      runHook preInstall
+      mkdir -p $out/
+      cp tree-sitter-${name}.wasm $out/
+      runHook postInstall
+      '';
+    };
+
+    package = pkgs.symlinkJoin {
+      name = "tree-sitter-${name}";
+      paths = [parserLib parserWasm];
+    };
+
+  in {
+    inherit
+    grammarSrc
+    parserGen
+    libSrc
+    parserSrc
+    parserLib
+    parserWasm
+    package
+    ;
   };
 
-  parserWasm = pkgs.stdenv.mkDerivation {
-    name = "tree-sitter-haskell-parser-wasm";
-    inherit version;
-    src = parserSrc;
-    nativeBuildInputs = [pkgs.nodejs pkgs.tree-sitter pkgs.emscripten];
+  dialect-haskell = dialect { name = "haskell"; dir = "."; };
+  dialect-hsc = dialect { name = "hsc"; dir = "hsc"; };
 
-    buildPhase = ''
-    runHook preBuild
-    mkdir -p .emscriptencache
-    export EM_CACHE=$(pwd)/.emscriptencache
-    tree-sitter build --wasm
-    runHook postBuild
-    '';
-
-    installPhase = ''
-    runHook preInstall
-    mkdir -p $out/
-    cp tree-sitter-haskell.wasm $out/
-    runHook postInstall
-    '';
-  };
-
-  tree-sitter-haskell = pkgs.symlinkJoin {
-    name = "tree-sitter-haskell";
-    paths = [parserLib parserWasm];
-  };
+  tree-sitter-haskell = dialect-haskell.package;
+  tree-sitter-hsc = dialect-hsc.package;
 
   rustSrc = filter {
     root = ../.;
@@ -129,7 +161,7 @@
   rust = rustPkgs.rustPlatform.buildRustPackage {
     pname = "tree-sitter-haskell";
     inherit version;
-    src = pkgs.symlinkJoin { name = "rust-source"; paths = [parserSrc rustSrc]; };
+    src = pkgs.symlinkJoin { name = "rust-source"; paths = [dialect-haskell.parserSrc rustSrc]; };
 
     cargoLock.lockFile = ../Cargo.lock;
 
@@ -385,16 +417,15 @@
   ${bench "postgrest haskell-language-server semantic"}
   '';
 
-  gen-parser = script "tree-sitter-haskell-gen-parser" ''
-  cp ${parserGen}/src/* src/
+  gen-parsers = script "tree-sitter-haskell-gen-parsers" ''
+  cp ${dialect-haskell.parserGen}/src/* src/
+  cp ${dialect-hsc.parserGen}/src/* hsc/src/
   '';
 
 in {
   inherit
-    parserGen
-    parserSrc
-    parserLib
-    parserWasm
+    dialect-haskell
+    dialect-hsc
     bitmap-test
     shell
     gen-bitmaps
@@ -411,6 +442,6 @@ in {
     report-mem
     report-size
     report-quick
-    gen-parser
+    gen-parsers
     ;
 }

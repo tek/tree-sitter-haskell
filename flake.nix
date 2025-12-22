@@ -55,14 +55,23 @@
 
       outputs = import ./nix/outputs.nix { inherit config pkgs rust-overlay; filter = nix-filter.lib; };
 
+      hs = outputs.dialect-haskell;
+      hsc = outputs.dialect-hsc;
+
     in {
       packages = {
         default = lib.mkForce outputs.tree-sitter-haskell;
         inherit (outputs) bitmap-test tree-sitter-haskell rust;
-        parser-gen = outputs.parserGen;
-        parser-src = outputs.parserSrc;
-        parser-lib = outputs.parserLib;
-        parser-wasm = outputs.parserWasm;
+
+        parser-gen = hs.parserGen;
+        parser-src = hs.parserSrc;
+        parser-lib = hs.parserLib;
+        parser-wasm = hs.parserWasm;
+
+        parser-hsc-gen = hsc.parserGen;
+        parser-hsc-src = hsc.parserSrc;
+        parser-hsc-lib = hsc.parserLib;
+        parser-hsc-wasm = hsc.parserWasm;
       };
 
       apps = lib.genAttrs ["tests" "unit-tests" "ci"] (name: util.app outputs.${name}) // {
@@ -79,7 +88,7 @@
         report-mem = util.app outputs.report-mem;
         report-size = util.app outputs.report-size;
         report-quick = util.app outputs.report-quick;
-        gen-parser = util.app outputs.gen-parser;
+        gen-parsers = util.app outputs.gen-parsers;
       };
 
       devShells = {
