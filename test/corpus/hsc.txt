@@ -3,7 +3,111 @@ hsc: basic
 :language(hsc)
 ================================================================================
 
-a = #{a a, a}
+a = #{poke struct foo_t, field}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations:
+  (declarations
+    (bind
+      name: (variable)
+      match:
+        (match
+          expression:
+            (hsc
+              type: (hsc_c_type (hsc_c_identifier))
+              path: (hsc_c_field (hsc_c_identifier)))))))
+
+================================================================================
+hsc: #let pragma
+:language(hsc)
+================================================================================
+
+#let alignment t = "%lu", (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
+foo = 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (cpp)
+  (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))))
+
+================================================================================
+hsc: #{...}
+:language(hsc)
+================================================================================
+
+poke1 foo bar = do
+  #{poke rure_match, start} foo bar
+  ()
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable)
+        (variable))
+      (match
+        (do
+          (exp
+            (apply
+              (apply
+                (hsc
+                  (hsc_c_type (hsc_c_identifier))
+                  (hsc_c_field (hsc_c_identifier)))
+                (variable))
+              (variable)))
+          (exp
+            (unit)))))))
+
+================================================================================
+hsc: (#...)
+:language(hsc)
+================================================================================
+
+poke2 foo bar = do
+  (#poke rure_match, start) foo bar
+  ()
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable)
+        (variable))
+      (match
+        (do
+          (exp
+            (apply
+              (apply
+                (parens
+                  (hsc
+                    (hsc_c_type (hsc_c_identifier))
+                    (hsc_c_field (hsc_c_identifier))))
+                (variable))
+              (variable)))
+          (exp
+            (unit)))))))
+
+================================================================================
+hsc: #...
+:language(hsc)
+================================================================================
+
+poke3 =
+  #poke rure_match, start
 
 --------------------------------------------------------------------------------
 
@@ -13,9 +117,194 @@ a = #{a a, a}
       (variable)
       (match
         (hsc
-          (hsc_kind
+          (hsc_c_type (hsc_c_identifier))
+          (hsc_c_field (hsc_c_identifier)))))))
+
+================================================================================
+hsc: #const in function pattern
+:language(hsc)
+================================================================================
+
+case1 #{const FOO} = 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (literal
+          (hsc
+            (hsc_c_expr
+              (hsc_c_identifier)))))
+      (match
+        (literal
+          (integer))))))
+
+================================================================================
+hsc: #{const} in case pattern
+:language(hsc)
+================================================================================
+
+case2 x = case x of
+  #{const FOO} -> 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (literal
+                (hsc
+                  (hsc_c_expr
+                    (hsc_c_identifier))))
+              (match
+                (literal
+                  (integer))))))))))
+
+================================================================================
+hsc: (#const) in case pattern
+:language(hsc)
+================================================================================
+
+case3 x = case x of
+  (#const FOO) -> 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (parens
+                (literal
+                  (hsc
+                    (hsc_c_expr
+                      (hsc_c_identifier)))))
+              (match
+                (literal
+                  (integer))))))))))
+
+================================================================================
+hsc: #{const} in type
+:language(hsc)
+================================================================================
+
+type1 :: Foo #{const FOO}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (apply
+        (name)
+        (literal
+          (hsc
+            (hsc_c_expr
+              (hsc_c_identifier))))))))
+
+================================================================================
+hsc: (#const) in type
+:language(hsc)
+================================================================================
+
+type2 :: Foo (#const FOO)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (apply
+        (name)
+        (parens
+          (literal
+            (hsc
+              (hsc_c_expr
+                (hsc_c_identifier)))))))))
+
+================================================================================
+hsc: pattern synonym #{const}
+:language(hsc)
+================================================================================
+
+pattern Foo n #{const FOO} = Bar #{const FOO} n
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (pattern_synonym
+      (equation
+        (apply
+          (apply
+            (constructor)
             (variable))
-          (hsc_arg
+          (literal
+            (hsc
+              (hsc_c_expr
+                (hsc_c_identifier)))))
+        (apply
+          (apply
+            (constructor)
+            (literal
+              (hsc
+                (hsc_c_expr
+                  (hsc_c_identifier)))))
+          (variable))))))
+
+================================================================================
+hsc: #size
+:language(hsc)
+================================================================================
+
+foo x = x + #{size foo_t} + (#size struct bar_t) + #{size SDL_Color}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+        (function
+          (variable)
+          (patterns
             (variable))
-          (hsc_arg
-            (variable)))))))
+          (match
+            (infix
+              (variable)
+              (operator)
+              (infix
+                (literal
+                  (hsc
+                    (hsc_c_type
+                      (hsc_c_identifier))))
+                (operator)
+                (infix
+                  (parens
+                    (literal
+                      (hsc
+                        (hsc_c_type
+                          (hsc_c_identifier)))))
+                  (operator)
+                  (literal
+                    (hsc
+                      (hsc_c_type
+                        (hsc_c_identifier)))))))))))
