@@ -46,7 +46,7 @@ module.exports = grammar(haskell, {
     // each directive is valid in only some contexts and not others,
     // e.g. #peek is never a valid pattern - it will never typecheck because
     // it produces monadic function.
-    hsc: $ => choice(
+    hsc_stuff: $ => choice(
       $._hsc_int_directive,
       $._hsc_str_directive,
       $._hsc_type_directive,

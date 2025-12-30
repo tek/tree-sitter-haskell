@@ -12902,7 +12902,7 @@
         }
       ]
     },
-    "hsc": {
+    "hsc_stuff": {
       "type": "CHOICE",
       "members": [
         {
