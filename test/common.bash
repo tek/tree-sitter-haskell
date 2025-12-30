@@ -1,5 +1,11 @@
 src() {
-  echo $base/${1}.hs
+  local hs="$base/${1}.hs"
+  if [[ -f "${hs}c" ]]
+  then
+    echo "${hs}c"
+  else
+    echo $hs
+  fi
 }
 
 target() {
