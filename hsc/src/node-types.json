@@ -262,6 +262,10 @@
         "named": true
       },
       {
+        "type": "hsc",
+        "named": true
+      },
+      {
         "type": "implicit_variable",
         "named": true
       },
@@ -629,6 +633,10 @@
     "subtypes": [
       {
         "type": "apply",
+        "named": true
+      },
+      {
+        "type": "hsc",
         "named": true
       },
       {
@@ -3167,6 +3175,129 @@
     }
   },
   {
+    "type": "hsc",
+    "named": true,
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hsc_c_expr",
+            "named": true
+          }
+        ]
+      },
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "alignment",
+            "named": false
+          },
+          {
+            "type": "const",
+            "named": false
+          },
+          {
+            "type": "const_str",
+            "named": false
+          },
+          {
+            "type": "offset",
+            "named": false
+          },
+          {
+            "type": "peek",
+            "named": false
+          },
+          {
+            "type": "poke",
+            "named": false
+          },
+          {
+            "type": "ptr",
+            "named": false
+          },
+          {
+            "type": "size",
+            "named": false
+          },
+          {
+            "type": "type",
+            "named": false
+          }
+        ]
+      },
+      "path": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hsc_c_field",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hsc_c_type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "hsc_c_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "hsc_c_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "hsc_c_field",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "hsc_c_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "hsc_c_type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "hsc_c_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "implicit_parameter",
     "named": true,
     "fields": {
@@ -3992,6 +4123,10 @@
           "named": true
         },
         {
+          "type": "hsc",
+          "named": true
+        },
+        {
           "type": "integer",
           "named": true
         },
@@ -4149,6 +4284,10 @@
         "types": [
           {
             "type": "float",
+            "named": true
+          },
+          {
+            "type": "hsc",
             "named": true
           },
           {
@@ -5982,6 +6121,10 @@
     "named": false
   },
   {
+    "type": "#{",
+    "named": false
+  },
+  {
     "type": "$",
     "named": false
   },
@@ -6090,6 +6233,10 @@
     "named": false
   },
   {
+    "type": "alignment",
+    "named": false
+  },
+  {
     "type": "all_names",
     "named": true
   },
@@ -6129,6 +6276,14 @@
     "type": "comment",
     "named": true,
     "extra": true
+  },
+  {
+    "type": "const",
+    "named": false
+  },
+  {
+    "type": "const_str",
+    "named": false
   },
   {
     "type": "constructor",
@@ -6199,6 +6354,10 @@
   {
     "type": "hiding",
     "named": false
+  },
+  {
+    "type": "hsc_c_identifier",
+    "named": true
   },
   {
     "type": "if",
@@ -6273,6 +6432,10 @@
     "named": false
   },
   {
+    "type": "offset",
+    "named": false
+  },
+  {
     "type": "p",
     "named": false
   },
@@ -6281,13 +6444,25 @@
     "named": false
   },
   {
+    "type": "peek",
+    "named": false
+  },
+  {
     "type": "phantom",
+    "named": false
+  },
+  {
+    "type": "poke",
     "named": false
   },
   {
     "type": "pragma",
     "named": true,
     "extra": true
+  },
+  {
+    "type": "ptr",
+    "named": false
   },
   {
     "type": "qualified",
@@ -6314,12 +6489,20 @@
     "named": true
   },
   {
+    "type": "size",
+    "named": false
+  },
+  {
     "type": "stock",
     "named": false
   },
   {
     "type": "string",
     "named": true
+  },
+  {
+    "type": "struct",
+    "named": false
   },
   {
     "type": "t",
@@ -6331,6 +6514,10 @@
   },
   {
     "type": "type",
+    "named": false
+  },
+  {
+    "type": "union",
     "named": false
   },
   {

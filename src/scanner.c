@@ -74,6 +74,8 @@
 
 #define PEEK env->lexer->lookahead
 
+#define ARR_SIZE(x) ((sizeof(x) / sizeof(x[0]))
+
 #if DEBUG
 
 #define S_ADVANCE advance_debug(env)
@@ -346,6 +348,7 @@ typedef enum {
   LSemi,
   LCppElse,
   LCpp,
+  LHscBraceOpen,
 } Lexed;
 
 #if DEBUG
@@ -1633,7 +1636,7 @@ static bool cpp_cond_else(Env *env, uint32_t start) {
 
 static bool cpp_cond_end(Env *env, uint32_t start) { return token_from(env, "endif", start); }
 
-static const char *cpp_tokens_other[7] = {
+static const char *cpp_tokens_other[] = {
   "define",
   "undef",
   "include",
@@ -1641,11 +1644,14 @@ static const char *cpp_tokens_other[7] = {
   "error",
   "warning",
   "line",
+#ifdef HSC_EXT
+  "let",
+#endif
 };
 
 static bool cpp_directive_other(Env *env, uint32_t start) {
   return
-    any_token_from(env, 7, cpp_tokens_other, start)
+    any_token_from(env, ARR_SIZE(cpp_tokens_other), cpp_tokens_other, start)
     ||
     // A hash followed by nothing but whitespace is CPP.
     // If non-whitespace follows whitespace, it is a parse error, unless we're in a brace layout; then it is a varsym.
@@ -2108,8 +2114,19 @@ static Lexed lex_symop(Env *env) {
       case '?':
         // A `?` can be the head of an implicit parameter, if followed by a varid.
         return varid_start_char(peek1(env)) ? LNothing : LSymop;
-      case '#':
-        return char1(env, ')') ? LUnboxedClose : LHash;
+      case '#': {
+        uint32_t c2 = peek(env, 1);
+        switch (c2) {
+          case ')':
+            return LUnboxedClose;
+#ifdef HSC_EXT
+          case '{':
+            return LHscBraceOpen;
+#endif
+          default:
+            return LHash;
+        }
+      }
       case '|':
         return char1(env, ']') ? LQuoteClose : LBar;
       case '!':
