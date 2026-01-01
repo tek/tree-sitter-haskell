@@ -74,7 +74,7 @@
 
 #define PEEK env->lexer->lookahead
 
-#define ARR_SIZE(x) ((sizeof(x) / sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+#define ARR_SIZE(x) ((sizeof(x) / sizeof(x[0]))
 
 #if DEBUG
 
@@ -348,9 +348,7 @@ typedef enum {
   LSemi,
   LCppElse,
   LCpp,
-#ifdef HSC_EXT
   LHscBraceOpen,
-#endif
 } Lexed;
 
 #if DEBUG
