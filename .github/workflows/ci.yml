@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true || github.event.action != 'closed'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: DeterminateSystems/nix-installer-action@main
 
       - name: Init config
@@ -29,7 +29,7 @@ jobs:
     runs-on: macos-latest
     if: github.event.pull_request.merged == true || github.event.action != 'closed'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: tree-sitter/setup-action/cli@v2
         with:
           tree-sitter-ref: 'v0.25.10'
