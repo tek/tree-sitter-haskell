@@ -1343,7 +1343,13 @@ static unsigned serialize_parse_lines(char *cursor, ParseLines *parse, unsigned 
     ParseLine *line = array_get(parse, i);
     unsigned line_size = line->size * sizeof(uint32_t);
     to_copy += line_size + sizeof(uint32_t);
-    if (to_copy > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) return 0;
+    if (to_copy > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
+      color(1);
+      dbg("FATAL: debug state exceeds serialization buffer size");
+      sgr("");
+      dbg("\n");
+      return 0;
+    }
     *((uint32_t *) cursor) = line->size;
     cursor += sizeof(line->size);
     memcpy(cursor, line->contents, line_size);
