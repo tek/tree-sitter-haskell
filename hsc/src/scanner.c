@@ -1,3 +1,5 @@
+#define HSC_EXT
+
 #include "../../src/scanner.c"
 
 void *tree_sitter_hsc_external_scanner_create() {

@@ -3,7 +3,131 @@ hsc: basic
 :language(hsc)
 ================================================================================
 
-a = #{a a, a}
+a = #{poke struct foo_t, field}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  declarations:
+  (declarations
+    (bind
+      name: (variable)
+      match:
+        (match
+          expression:
+            (hsc
+              name: (hsc_directive_name)
+              body: (hsc_args))))))
+
+================================================================================
+hsc: #let pragma
+:language(hsc)
+================================================================================
+
+#let alignment t = "%lu", (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
+a = 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (cpp)
+  (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))))
+
+================================================================================
+hsc: #def pragma
+:language(hsc)
+================================================================================
+
+#def void _dummy_force_NOTMUCH_H_hsc_c (void) { }
+a = 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (cpp)
+  (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))))
+
+
+================================================================================
+hsc: #{...}
+:language(hsc)
+================================================================================
+
+poke1 foo bar = do
+  #{poke rure_match, start} foo bar
+  ()
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable)
+        (variable))
+      (match
+        (do
+          (exp
+            (apply
+              (apply
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))
+                (variable))
+              (variable)))
+          (exp
+            (unit)))))))
+
+================================================================================
+hsc: directive in parens
+:language(hsc)
+================================================================================
+
+poke2 foo bar = do
+  (#poke rure_match, start) foo bar
+  ()
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable)
+        (variable))
+      (match
+        (do
+          (exp
+            (apply
+              (apply
+                (parens
+                  (hsc
+                    (hsc_directive_name)
+                    (hsc_args)))
+                (variable))
+              (variable)))
+          (exp
+            (unit)))))))
+
+================================================================================
+hsc: #...
+:language(hsc)
+================================================================================
+
+poke3 =
+  #poke rure_match, start
 
 --------------------------------------------------------------------------------
 
@@ -13,9 +137,835 @@ a = #{a a, a}
       (variable)
       (match
         (hsc
-          (hsc_kind
+          (hsc_directive_name)
+          (hsc_args))))))
+
+================================================================================
+hsc: #const in function pattern
+:language(hsc)
+================================================================================
+
+case1 #{const FOO} = 1
+case1 (#const FOO) = 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (hsc
+          (hsc_directive_name)
+          (hsc_args)))
+      (match
+        (literal
+          (integer))))
+    (function
+      (variable)
+      (patterns
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args))))
+      (match
+        (literal
+          (integer))))))
+
+================================================================================
+hsc: #{const} in case pattern
+:language(hsc)
+================================================================================
+
+case2 x = case x of
+  #{const FOO} -> 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (hsc
+                (hsc_directive_name)
+                (hsc_args))
+              (match
+                (literal
+                  (integer))))))))))
+
+================================================================================
+hsc: (#const) in case pattern
+:language(hsc)
+================================================================================
+
+case3 x = case x of
+  (#const FOO) -> 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (parens
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args)))
+              (match
+                (literal
+                  (integer))))))))))
+
+================================================================================
+hsc: #{const} in type
+:language(hsc)
+================================================================================
+
+type1 :: Foo #{const FOO}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (apply
+        (name)
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))))))
+
+================================================================================
+hsc: (#const) in type
+:language(hsc)
+================================================================================
+
+type2 :: Foo (#const FOO)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (apply
+        (name)
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))))))
+
+================================================================================
+hsc: pattern synonym #{const}
+:language(hsc)
+================================================================================
+
+pattern Foo n #{const FOO} = Bar #{const FOO} n
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (pattern_synonym
+      (equation
+        (apply
+          (apply
+            (constructor)
             (variable))
-          (hsc_arg
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))
+        (apply
+          (apply
+            (constructor)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args)))
+          (variable))))))
+
+================================================================================
+hsc: #size
+:language(hsc)
+================================================================================
+
+foo x = x + #{size foo_t} + (#size struct bar_t) + #{size SDL_Color}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (infix
+          (variable)
+          (operator)
+          (infix
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))
+            (operator)
+            (infix
+              (parens
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args)))
+              (operator)
+              (hsc
+                (hsc_directive_name)
+                (hsc_args)))))))))
+
+================================================================================
+hsc: complex #const 1
+:language(hsc)
+================================================================================
+
+foo x =
+  (#const CONTEXT_FULL|CONTEXT_DEBUG_REGISTERS|CONTEXT_FLOATING_POINT)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))))))
+
+================================================================================
+hsc: complex #const 2
+:language(hsc)
+================================================================================
+
+foo x =
+  #{const __builtin_offsetof (KEY_EVENT_RECORD, wRepeatCount)}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))))))
+
+================================================================================
+hsc: complex #const 3
+:language(hsc)
+================================================================================
+
+foo x =
+  (#const offsetof(struct {char x__; struct timeval (y__); }, y__))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))))))
+
+================================================================================
+hsc: complex #const 4
+:language(hsc)
+================================================================================
+
+foo x =
+  (#const SDL_WINDOWPOS_CENTERED_DISPLAY(15))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))))))
+
+================================================================================
+hsc: complex #const 5
+:language(hsc)
+================================================================================
+
+foo x =
+  (#const count_parens("(())\"()", FOO('"', "(", '(', ')')[BAR("}")]))
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (parens
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))))))
+
+================================================================================
+hsc: complex #const 6
+:language(hsc)
+================================================================================
+
+foo =
+  #const (x+1) / (y+1)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))))))
+
+================================================================================
+hsc: custom complex directive
+:language(hsc)
+================================================================================
+
+#include <linux/videodev2.h>
+
+#let member_arr_size s, t = "%lu", (unsigned long)(sizeof(((s *) 0)->t) / sizeof(((s *) 0)->t[0]))
+
+driverLen :: Int
+driverLen = #{member_arr_size struct v4l2_capability, driver}
+
+cardLen :: Int
+cardLen = #member_arr_size struct v4l2_capability, card
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (cpp)
+  (cpp)
+  (declarations
+    (signature
+      (variable)
+      (name))
+    (bind
+      (variable)
+      (match
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))))
+    (signature
+      (variable)
+      (name))
+    (bind
+      (variable)
+      (match
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))))))
+
+================================================================================
+hsc: ##include
+:language(hsc)
+================================================================================
+
+-- From network-3.2.8.0/Network/Socket/Options.hsc
+
+#include "HsNet.h"
+##include "HsNetDef.h"
+
+-- | SO_ACCEPTCONN, read-only
+pattern AcceptConn :: SocketOption
+#ifdef SO_ACCEPTCONN
+pattern AcceptConn = SockOpt (#const SOL_SOCKET) (#const SO_ACCEPTCONN)
+#else
+pattern AcceptConn = SockOpt (-1) (-1)
+#endif
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (comment)
+  (cpp)
+  (cpp)
+  (haddock)
+  (declarations
+    (pattern_synonym
+      (signature
+        (constructor)
+        (name)))
+    (cpp)
+    (pattern_synonym
+      (equation
+        (constructor)
+        (apply
+          (apply
+            (constructor)
+            (parens
+              (hsc
+                (hsc_directive_name)
+                (hsc_args))))
+          (parens
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))
+    (cpp)
+    (cpp)))
+
+================================================================================
+hsc: exp: unboxed tuple
+:language(hsc)
+================================================================================
+
+a :: (Int##, Int##)
+a :: (## Int, Int ##)
+a = (## a, a ##)
+a = (## ##)
+a = (####)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (tuple
+        (name)
+        (name)))
+    (signature
+      (variable)
+      (unboxed_tuple
+        (name)
+        (name)))
+    (bind
+      (variable)
+      (match
+        (unboxed_tuple
+          (variable)
+          (variable))))
+    (bind
+      (variable)
+      (match
+        (unboxed_unit)))
+    (bind
+      (variable)
+      (match
+        (unboxed_unit)))))
+
+================================================================================
+hsc: exp: unboxed sum
+:language(hsc)
+================================================================================
+
+a :: (## A | (## A, A ##) | A ##)
+a = (## a | | ##)
+a = (##| a ##)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (unboxed_sum
+        (name)
+        (unboxed_tuple
+          (name)
+          (name))
+        (name)))
+    (bind
+      (variable)
+      (match
+        (unboxed_sum
+          (variable))))
+    (bind
+      (variable)
+      (match
+        (unboxed_sum
+          (variable))))))
+
+================================================================================
+hsc: regular #enum
+:language(hsc)
+================================================================================
+
+#{enum StdHandleId,
+ , sTD_INPUT_HANDLE  = STD_INPUT_HANDLE
+ , sTD_OUTPUT_HANDLE = STD_OUTPUT_HANDLE
+ , sTD_ERROR_HANDLE  = STD_ERROR_HANDLE
+}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (top_splice
+      (hsc
+        (hsc_directive_name)
+        (hsc_args)))))
+
+================================================================================
+hsc: #enum with comments
+:language(hsc)
+================================================================================
+
+#{enum StdHandleId,
+ , sTD_INPUT_HANDLE  = STD_INPUT_HANDLE // '
+ , sTD_OUTPUT_HANDLE = STD_OUTPUT_HANDLE /* /* */
+ , sTD_ERROR_HANDLE  = STD_ERROR_HANDLE // /*
+ , sFOO              = FOO /*
+ // , sBAR              = BAR */
+}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (top_splice
+      (hsc
+        (hsc_directive_name)
+        (hsc_args)))))
+
+================================================================================
+hsc: extension derictives from bindings DSL
+:language(hsc)
+================================================================================
+
+#ccall glfwGetCocoaMonitor , Ptr <GLFWwindow> -> IO (Ptr Word32)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (top_splice
+      (hsc
+        (hsc_directive_name)
+        (hsc_args)))))
+
+================================================================================
+hsc: magic hash
+:language(hsc)
+================================================================================
+
+a = 1####
+a = 0xF00D####
+a = 1.0####
+a = 'a'####
+a = "a"####
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (float))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (char))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (string))))))
+
+================================================================================
+hsc: varsym hash operator
+:language(hsc)
+================================================================================
+
+(##) = (##)
+a = a##a
+a = a## a
+a = a ##a
+a = a ## a
+a = (a ## a)
+a = a A.## a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (prefix_id
+        (operator))
+      (match
+        (prefix_id
+          (operator))))
+    (bind
+      (variable)
+      (match
+        (apply
+          (variable)
+          (variable))))
+    (bind
+      (variable)
+      (match
+        (apply
+          (variable)
+          (variable))))
+    (bind
+      (variable)
+      (match
+        (apply
+          (variable)
+          (label))))
+    (bind
+      (variable)
+      (match
+        (infix
+          (variable)
+          (operator)
+          (variable))))
+    (bind
+      (variable)
+      (match
+        (parens
+          (infix
+            (variable)
+            (operator)
+            (variable)))))
+    (bind
+      (variable)
+      (match
+        (infix
+          (variable)
+          (qualified
+            (module
+              (module_id))
+            (operator))
+          (variable))))))
+
+
+================================================================================
+hsc: closing brace interaction with indentation
+:language(hsc)
+================================================================================
+
+expType t = case t of
+  Read  -> #{const FOO}
+  Write -> 2
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (variable))
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (constructor)
+              (match
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))))
+            (alternative
+              (constructor)
+              (match
+                (literal
+                  (integer))))))))))
+
+================================================================================
+hsc: strict datatype field
+:language(hsc)
+================================================================================
+
+data Foo = Foo
+  { foo :: !(#{intfieldtype snd_seq_ev_raw32_t, d[0]})
+  }
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (data_type
+      (name)
+      (data_constructors
+        (data_constructor
+          (record
+            (constructor)
+            (fields
+              (field
+                (field_name
+                  (variable))
+                (strict_field
+                  (parens
+                    (hsc
+                      (hsc_directive_name)
+                      (hsc_args))))))))))))
+
+================================================================================
+hsc: hsc directive in foreign import
+:language(hsc)
+================================================================================
+
+#ifdef mingw32_HOST_OS
+#let CALLCONV = "stdcall"
+#else
+#let CALLCONV = "ccall"
+#endif
+
+foreign import #{CALLCONV} safe "sql.h SQLNumParams"
+  sqlNumParams :: SQLHSTMT -> Ptr #{type SQLSMALLINT}
+               -> IO #{type SQLRETURN}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (cpp)
+  (cpp)
+  (cpp)
+  (cpp)
+  (declarations
+    (foreign_import
+      (calling_convention
+        (hsc
+          (hsc_directive_name)
+          (hsc_args)))
+      (safety)
+      (entity
+        (string))
+      (signature
+        (variable)
+        (function
+          (name)
+          (function
+            (apply
+              (name)
+              (hsc
+                (hsc_directive_name)
+                (hsc_args)))
+            (apply
+              (name)
+              (hsc
+                (hsc_directive_name)
+                (hsc_args)))))))))
+
+================================================================================
+hsc: hsc directive in import list
+:language(hsc)
+================================================================================
+
+import Foreign (Storable, #{type unsigned long}, Int32)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (imports
+    (import
+      (module
+        (module_id))
+      (import_list
+        (import_name
+          (name))
+        (import_name
+          (hsc
+            (hsc_directive_name)
+            (hsc_args)))
+        (import_name
+          (name))))))
+
+================================================================================
+hsc: directive in do pattern
+:language(hsc)
+================================================================================
+
+a = do
+  (keyval :: #gtk2hs_type guint) <- a
+  pure 1
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (do
+          (bind
+            (parens
+              (signature
+                (variable)
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))))
             (variable))
-          (hsc_arg
-            (variable)))))))
+          (exp
+            (apply
+              (variable)
+              (literal
+                (integer)))))))))
+
+================================================================================
+hsc: directive adjacent to ::
+:language(hsc)
+================================================================================
+
+a = (a::#{foo bar})
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (parens
+          (signature
+            (variable)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))))

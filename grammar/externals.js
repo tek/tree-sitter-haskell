@@ -80,6 +80,9 @@ module.exports = {
     $._cmd_brace_open,
     $._cmd_brace_close,
 
+    // HSC brace is distinct from regular brace because it does not have any layout rules.
+    $._cmd_hsc_brace_open,
+
     // Instruct the scanner to push or pop a tuple expression context.
     // In parenthesized or bracketed expressions, certain tokens (like commas, bars, and closing brackets), can end
     // layouts, so the scanner must be aware of them.
@@ -167,6 +170,18 @@ module.exports = {
     // in the grammar.
     $._varsym,
     $._consym,
+
+    // hsc2hs introduces special treatment of regular # operator so it will override
+    // regular hash.
+    $._cond_hsc_hash,
+
+    // Skip part of an hsc2hs directive that constitutes C expressions in order to avoid
+    // importing large parts of C grammar just to parse this field.
+
+    // Skip hsc2hs arguments until closing brace.
+    $.hsc_args_nested,
+    // Skip hsc2hs arguments until unescaped newline.
+    $.hsc_args_newline,
 
     // The newline is used as a dummy symbol that is emitted whenever the scanner has to update its state even though
     // the current position must be parsed by the grammar.
