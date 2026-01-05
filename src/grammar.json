@@ -9712,6 +9712,10 @@
           {
             "type": "STRING",
             "value": "interruptible"
+          },
+          {
+            "type": "PATTERN",
+            "value": "[A-Z_]+"
           }
         ]
       }
