@@ -60,3 +60,33 @@ foreign export javascript "fun" a :: A
       (signature
         (variable)
         (name)))))
+
+================================================================================
+foreign: decl with cpp defines
+================================================================================
+
+foreign import CALLCONV SAFE_ON_WIN "ioctlsocket"
+  c_ioctlsocket :: CInt -> CLong -> Ptr CULong -> IO CInt
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (foreign_import
+      (calling_convention)
+      (safety)
+      (entity
+        (string))
+      (signature
+        (variable)
+         (function
+           (name)
+           (function
+             (name)
+             (function
+               (apply
+                 (name)
+                 (name))
+               (apply
+                 (name)
+                 (name)))))))))

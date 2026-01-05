@@ -154,6 +154,7 @@ module.exports = {
     'unsafe',
     'safe',
     'interruptible',
+    /[A-Z_]+/, // It's common in GHC to use a cpp #define for this
   )),
 
   entity: $ => $.string,
