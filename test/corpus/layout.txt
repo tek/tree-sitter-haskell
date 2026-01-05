@@ -3422,3 +3422,55 @@ a = do
               (variable)
               (variable)
               (variable))))))))
+
+================================================================================
+layout: case with tab
+================================================================================
+
+a = case a of
+  A	-> a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (case
+          (variable)
+          (alternatives
+            (alternative
+              (constructor)
+              (match
+                (variable)))))))))
+
+================================================================================
+layout: do with tab
+================================================================================
+
+a = do
+  let a = a
+	|| a
+  a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (do
+          (let
+            (local_binds
+              (bind
+                (variable)
+                (match
+                  (infix
+                    (variable)
+                    (operator)
+                    (variable))))))
+
+          (exp
+            (variable)))))))

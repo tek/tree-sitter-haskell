@@ -56,6 +56,7 @@ module.exports = grammar({
    */
   extras: $ => [
     /\p{Zs}/,
+    /\t/,
     /\n/,
     /\r/,
     $.cpp,
