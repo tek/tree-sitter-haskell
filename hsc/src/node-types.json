@@ -38,6 +38,10 @@
         "named": true
       },
       {
+        "type": "hsc",
+        "named": true
+      },
+      {
         "type": "infix",
         "named": true
       },
@@ -262,6 +266,10 @@
         "named": true
       },
       {
+        "type": "hsc",
+        "named": true
+      },
+      {
         "type": "implicit_variable",
         "named": true
       },
@@ -452,6 +460,10 @@
         "named": true
       },
       {
+        "type": "hsc",
+        "named": true
+      },
+      {
         "type": "infix",
         "named": true
       },
@@ -629,6 +641,10 @@
     "subtypes": [
       {
         "type": "apply",
+        "named": true
+      },
+      {
+        "type": "hsc",
         "named": true
       },
       {
@@ -926,10 +942,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -944,10 +956,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -959,10 +967,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -1066,10 +1070,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -1099,6 +1099,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "prefix_id",
             "named": true
@@ -1138,6 +1142,10 @@
             "named": true
           },
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "prefix_id",
             "named": true
           },
@@ -1162,11 +1170,22 @@
           "named": true
         },
         {
-          "type": "hsc",
-          "named": true
-        },
-        {
           "type": "signature",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "calling_convention",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "hsc",
           "named": true
         }
       ]
@@ -1196,10 +1215,6 @@
           "named": true
         },
         {
-          "type": "hsc",
-          "named": true
-        },
-        {
           "type": "signature",
           "named": true
         }
@@ -1224,6 +1239,10 @@
           },
           {
             "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "hsc",
             "named": true
           },
           {
@@ -1280,6 +1299,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "name",
             "named": true
@@ -1353,10 +1376,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -1371,10 +1390,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -1386,10 +1401,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -1443,6 +1454,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "prefix_id",
             "named": true
@@ -1621,6 +1636,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -1749,6 +1768,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "name",
             "named": true
@@ -1925,6 +1948,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -2059,6 +2086,10 @@
       "required": true,
       "types": [
         {
+          "type": "hsc",
+          "named": true
+        },
+        {
           "type": "string",
           "named": true
         }
@@ -2097,6 +2128,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "name",
             "named": true
@@ -2194,10 +2229,6 @@
           "named": true
         },
         {
-          "type": "hsc",
-          "named": true
-        },
-        {
           "type": "signature",
           "named": true
         }
@@ -2282,6 +2313,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "hsc",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2475,10 +2516,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -2804,6 +2841,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "prefix_id",
             "named": true
           },
@@ -2881,6 +2922,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "prefix_id",
             "named": true
@@ -3002,6 +3047,10 @@
             "named": true
           },
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "prefix_id",
             "named": true
           }
@@ -3076,10 +3125,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -3111,10 +3156,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -3221,50 +3262,27 @@
   {
     "type": "hsc",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "hsc_arg",
-          "named": true
-        },
-        {
-          "type": "hsc_kind",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "hsc_arg",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "variable",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "hsc_kind",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "variable",
-          "named": true
-        }
-      ]
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "hsc_args",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "hsc_directive_name",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -3417,6 +3435,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "hsc",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -3616,6 +3644,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -3743,6 +3775,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -3796,10 +3832,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -3945,10 +3977,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -4035,10 +4063,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "pattern",
             "named": true
           },
@@ -4071,10 +4095,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -4095,10 +4115,31 @@
   {
     "type": "literal",
     "named": true,
-    "fields": {},
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hsc_args",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hsc_directive_name",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "char",
@@ -4149,10 +4190,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -4353,6 +4390,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -4431,6 +4472,10 @@
             "named": true
           },
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "prefix_id",
             "named": true
           }
@@ -4456,10 +4501,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -4479,6 +4520,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "name",
             "named": true
@@ -4598,10 +4643,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -4693,6 +4734,10 @@
         "types": [
           {
             "type": "constructor",
+            "named": true
+          },
+          {
+            "type": "hsc",
             "named": true
           },
           {
@@ -5039,10 +5084,6 @@
           "named": true
         },
         {
-          "type": "hsc",
-          "named": true
-        },
-        {
           "type": "signature",
           "named": true
         }
@@ -5195,6 +5236,10 @@
           {
             "type": "constructor",
             "named": true
+          },
+          {
+            "type": "hsc",
+            "named": true
           }
         ]
       },
@@ -5267,6 +5312,10 @@
         "required": true,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -5280,6 +5329,21 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "safety",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "hsc",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -5320,6 +5384,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "prefix_id",
             "named": true
@@ -5428,6 +5496,10 @@
             "named": true
           },
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "implicit_variable",
             "named": true
           },
@@ -5509,6 +5581,10 @@
             "named": true
           },
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "prefix_id",
             "named": true
           },
@@ -5562,10 +5638,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -5577,10 +5649,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -5601,10 +5669,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -5701,6 +5765,10 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "hsc",
+            "named": true
+          },
           {
             "type": "name",
             "named": true
@@ -5818,6 +5886,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -5909,6 +5981,10 @@
         "required": false,
         "types": [
           {
+            "type": "hsc",
+            "named": true
+          },
+          {
             "type": "name",
             "named": true
           },
@@ -5994,10 +6070,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "pattern",
             "named": true
           },
@@ -6027,10 +6099,6 @@
         "types": [
           {
             "type": "expression",
-            "named": true
-          },
-          {
-            "type": "hsc",
             "named": true
           },
           {
@@ -6092,10 +6160,6 @@
             "named": true
           },
           {
-            "type": "hsc",
-            "named": true
-          },
-          {
             "type": "signature",
             "named": true
           }
@@ -6132,6 +6196,10 @@
   },
   {
     "type": "#",
+    "named": false
+  },
+  {
+    "type": "##",
     "named": false
   },
   {
@@ -6267,10 +6335,6 @@
     "named": false
   },
   {
-    "type": "calling_convention",
-    "named": true
-  },
-  {
     "type": "case",
     "named": false
   },
@@ -6360,6 +6424,14 @@
   {
     "type": "hiding",
     "named": false
+  },
+  {
+    "type": "hsc_args",
+    "named": true
+  },
+  {
+    "type": "hsc_directive_name",
+    "named": true
   },
   {
     "type": "if",
@@ -6471,10 +6543,6 @@
     "named": false
   },
   {
-    "type": "safety",
-    "named": true
-  },
-  {
     "type": "stock",
     "named": false
   },
@@ -6532,6 +6600,14 @@
   },
   {
     "type": "}",
+    "named": false
+  },
+  {
+    "type": "}##",
+    "named": false
+  },
+  {
+    "type": "}####",
     "named": false
   },
   {

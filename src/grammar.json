@@ -7075,7 +7075,7 @@
               "name": "name",
               "content": {
                 "type": "SYMBOL",
-                "name": "_con"
+                "name": "_decl_con"
               }
             },
             {
@@ -7353,7 +7353,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "_con"
+            "name": "_decl_con"
           }
         },
         {
@@ -7418,7 +7418,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "_constructor"
+            "name": "_decl_constructor"
           }
         },
         {
@@ -7777,7 +7777,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "_con"
+            "name": "_decl_con"
           }
         },
         {
@@ -11410,6 +11410,10 @@
       "named": true,
       "value": "constructor"
     },
+    "_decl_constructor": {
+      "type": "SYMBOL",
+      "name": "_constructor"
+    },
     "_qualified_constructor": {
       "type": "PREC",
       "value": "qualified-id",
@@ -11504,6 +11508,10 @@
           "name": "_qcon"
         }
       ]
+    },
+    "_decl_con": {
+      "type": "SYMBOL",
+      "name": "_con"
     },
     "_constructor_ticked": {
       "type": "SEQ",
@@ -13106,6 +13114,10 @@
     },
     {
       "type": "SYMBOL",
+      "name": "_cmd_hsc_brace_open"
+    },
+    {
+      "type": "SYMBOL",
       "name": "_cmd_texp_start"
     },
     {
@@ -13243,6 +13255,18 @@
     {
       "type": "SYMBOL",
       "name": "_consym"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_cond_hsc_hash"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "hsc_args_nested"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "hsc_args_newline"
     },
     {
       "type": "PATTERN",
