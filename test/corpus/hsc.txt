@@ -848,7 +848,7 @@ data Foo = Foo
                       (hsc_args))))))))))))
 
 ================================================================================
-hsc: hsc directive in foreign import
+hsc: hsc directive in foreign import ccall
 :language(hsc)
 ================================================================================
 
@@ -893,6 +893,44 @@ foreign import #{CALLCONV} safe "sql.h SQLNumParams"
               (hsc
                 (hsc_directive_name)
                 (hsc_args)))))))))
+
+================================================================================
+hsc: hsc directive in foreign import entity
+:language(hsc)
+================================================================================
+
+foreign import ccall #foo f
+  f :: Int -> Int
+
+foreign import ccall #{foo f} f :: Int -> Int
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (foreign_import
+      (calling_convention)
+      (entity
+        (hsc
+          (hsc_directive_name)
+          (hsc_args)))
+      (signature
+        (variable)
+        (function
+          (name)
+          (name))))
+    (foreign_import
+      (calling_convention)
+      (entity
+        (hsc
+          (hsc_directive_name)
+          (hsc_args)))
+      (signature
+        (variable)
+        (function
+          (name)
+          (name))))))
+
 
 ================================================================================
 hsc: hsc directive in import list

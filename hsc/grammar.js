@@ -10,6 +10,13 @@ const duplicate_magic_hash_for_hsc = rule =>
 module.exports = grammar(haskell, {
   name: 'hsc',
 
+
+  precedences: ($, previous) =>
+    previous.concat([
+      // Conflict between _var and _tycon than bot hcontain hsc.
+      [$.entity, $.safety]
+    ]),
+
   rules: {
 
     // Need to fix unboxed tuples because in hsc2hs hashes must
@@ -41,6 +48,7 @@ module.exports = grammar(haskell, {
     calling_convention: ($, previous) => choice(previous, $.hsc),
     safety: ($, previous) => choice(previous, $.hsc),
     _ie_entity: ($, previous) => choice(previous, $.hsc),
+    entity: ($, previous) => choice(previous, $.hsc),
 
     _var: ($, previous) => choice(previous, $.hsc),
     _tycon: ($, previous) => choice(previous, $.hsc),
