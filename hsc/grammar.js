@@ -7,6 +7,17 @@ const {
 const duplicate_magic_hash_for_hsc = rule =>
   token(seq(rule, optional(token.immediate(/##?/))))
 
+const hsc_braced = ($, close) =>
+  seq(
+    $._cond_hsc_hash,
+    '#{',
+    $._cmd_hsc_brace_open,
+    field('name', $.hsc_directive_name),
+    field('body', alias($.hsc_args_nested, $.hsc_args)),
+    close,
+    $._cmd_brace_close,
+  )
+
 module.exports = grammar(haskell, {
   name: 'hsc',
 
@@ -50,6 +61,8 @@ module.exports = grammar(haskell, {
     _ie_entity: ($, previous) => choice(previous, $.hsc),
     entity: ($, previous) => choice(previous, $.hsc),
 
+    literal: ($, previous) => choice(previous, $._hsc_literal),
+
     _var: ($, previous) => choice(previous, $.hsc),
     _tycon: ($, previous) => choice(previous, $.hsc),
     _decl_con: ($, previous) => choice(previous, $.hsc),
@@ -57,15 +70,7 @@ module.exports = grammar(haskell, {
 
     // Hsc directive definitions
     hsc: $ => choice(
-      seq(
-        $._cond_hsc_hash,
-        '#{',
-        $._cmd_hsc_brace_open,
-        field('name', $.hsc_directive_name),
-        field('body', alias($.hsc_args_nested, $.hsc_args)),
-        '}',
-        $._cmd_brace_close,
-      ),
+      hsc_braced($, '}'),
       seq(
         $._cond_hsc_hash,
         '#',
@@ -73,6 +78,9 @@ module.exports = grammar(haskell, {
         field('body', alias($.hsc_args_newline, $.hsc_args)),
       ),
     ),
+
+    _hsc_literal: $ =>
+      hsc_braced($, choice('}##', '}####')),
 
     hsc_directive_name: $ =>
       token(/[a-zA-Z_]+/),

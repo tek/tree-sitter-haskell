@@ -718,6 +718,35 @@ a = "a"####
           (string))))))
 
 ================================================================================
+hsc: magic hash after directive
+:language(hsc)
+================================================================================
+
+f #{const A}## = A
+g #{const A}#### = A
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (function
+      (variable)
+      (patterns
+        (literal
+          (hsc_directive_name)
+          (hsc_args)))
+      (match
+        (constructor)))
+    (function
+      (variable)
+      (patterns
+        (literal
+          (hsc_directive_name)
+          (hsc_args)))
+      (match
+        (constructor)))))
+
+================================================================================
 hsc: varsym hash operator
 :language(hsc)
 ================================================================================
