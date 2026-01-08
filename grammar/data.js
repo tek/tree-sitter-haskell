@@ -70,7 +70,7 @@ module.exports = {
    */
   gadt_constructor: $ => seq(
     choice(
-      field('name', $._con),
+      field('name', $._decl_con),
       field('names', alias($._con_binding_list, $.binding_list)),
     ),
     $._colon2,
@@ -97,7 +97,7 @@ module.exports = {
   _field_type: $ => choice($.strict_field, $.lazy_field, $.type),
 
   _datacon_prefix: $ => seq(
-    field('name', $._con),
+    field('name', $._decl_con),
     repeat(prec('patterns', field('field', $._field_type))),
   ),
 
@@ -109,7 +109,7 @@ module.exports = {
   )),
 
   _datacon_record: $ => seq(
-    field('name', $._constructor),
+    field('name', $._decl_constructor),
     field('fields', alias($._record_fields, $.fields)),
   ),
 
@@ -169,7 +169,7 @@ module.exports = {
   _newtype_con_field: $ =>  $.type,
 
   newtype_constructor: $ => seq(
-    field('name', $._con),
+    field('name', $._decl_con),
     field('field', choice(
       alias($._newtype_con_field, $.field),
       alias($._record_fields, $.record),

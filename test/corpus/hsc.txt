@@ -1031,3 +1031,130 @@ hsc: directive that introduces name
       (match
         (variable)))))
 
+================================================================================
+hsc: directive that introduces type name
+:language(hsc)
+================================================================================
+
+newtype #foo "foo"
+    =   #bar "bar"
+    A
+    #baz "baz"
+
+newtype #{foo "foo"} = #{bar "bar"} A #{bar "baz"}
+
+data #foo "foo"
+    =   #bar "bar"
+    A
+    #baz "baz"
+
+data #{foo "foo"} = #{bar "bar"} A #{bar "baz"}
+
+data #foo "foo"
+  where
+  #bar "bar"
+    :: A
+    -> #baz "baz"
+    -> #foo "foo"
+
+data #{foo "foo"} where
+  #{bar "bar"} :: A -> #{bar "baz"} -> #{foo "foo"}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (newtype
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (newtype_constructor
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))
+        (field
+          (apply
+            (name)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))
+    (newtype
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (newtype_constructor
+        (hsc
+          (hsc_directive_name)
+          (hsc_args))
+        (field
+          (apply
+            (name)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))
+    (data_type
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (data_constructors
+        (data_constructor
+          (prefix
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))
+            (name)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))
+    (data_type
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (data_constructors
+        (data_constructor
+          (prefix
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))
+            (name)
+            (hsc
+              (hsc_directive_name)
+              (hsc_args))))))
+    (data_type
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (gadt_constructors
+        (gadt_constructor
+          (hsc
+            (hsc_directive_name)
+            (hsc_args))
+          (prefix
+            (function
+              (name)
+              (function
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))))))))
+    (data_type
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (gadt_constructors
+        (gadt_constructor
+          (hsc
+            (hsc_directive_name)
+            (hsc_args))
+          (prefix
+            (function
+              (name)
+              (function
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))
+                (hsc
+                  (hsc_directive_name)
+                  (hsc_args))))))))))
