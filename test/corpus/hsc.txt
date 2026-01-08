@@ -969,3 +969,65 @@ a = (a::#{foo bar})
             (hsc
               (hsc_directive_name)
               (hsc_args))))))))
+
+================================================================================
+hsc: directive that introduces name
+:language(hsc)
+================================================================================
+
+#mangle_ident "FOO"
+  :: A
+#mangle_ident "FOO"
+    = a
+
+#mangle_ident "BAR"
+  b = a
+
+#{mangle_ident "FOO"} :: A
+#{mangle_ident "FOO"} = a
+
+#{mangle_ident "BAR"} b = a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (name))
+    (bind
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (match
+        (variable)))
+    (function
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (patterns
+        (variable))
+      (match
+        (variable)))
+    (signature
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (name))
+    (bind
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (match
+        (variable)))
+    (function
+      (hsc
+        (hsc_directive_name)
+        (hsc_args))
+      (patterns
+        (variable))
+      (match
+        (variable)))))
+

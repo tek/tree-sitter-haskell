@@ -38,13 +38,13 @@ module.exports = grammar(haskell, {
     _hex_literal: (_, previous) => duplicate_magic_hash_for_hsc(previous),
 
     // Hook hsc directives into regular Haskell constructs
-    expression: ($, previous) => choice(previous, $.hsc),
-    pattern: ($, previous) => choice(previous, $.hsc),
     type: ($, previous) => choice(previous, $.hsc),
 
     calling_convention: ($, previous) => choice(previous, $.hsc),
     safety: ($, previous) => choice(previous, $.hsc),
     _ie_entity: ($, previous) => choice(previous, $.hsc),
+
+    _var: ($, previous) => choice(previous, $.hsc),
 
     // Hsc directive definitions
     hsc: $ => choice(
