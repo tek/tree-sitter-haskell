@@ -1098,15 +1098,19 @@ static bool symop_char(const int32_t c) {
   return is_symop_char(c) && !reserved_symbolic(c);
 }
 
-static bool symop_char_not_hschash(const int32_t c) {
 #ifdef HSC_EXT
-  return c != '#' && symop_char(c);
+static bool parsing_hsc = 1;
 #else
-  return symop_char(c);
+static bool parsing_hsc = 0;
 #endif
+
+static bool starts_symop(const int32_t c) {
+  return !(parsing_hsc && c == '#') && symop_char(c);
 }
 
+static uint32_t symop_lookahead(Env *env);
 
+#ifndef HSC_EXT
 /**
  * Advance the position to the first character that's not valid for a symbolic operator, and return that position.
  * If the function has been called before, directly return the cached position.
@@ -1116,39 +1120,13 @@ static bool symop_char_not_hschash(const int32_t c) {
  */
 static uint32_t symop_lookahead(Env *env) {
   if (env->symop == 0) {
-
-    uint32_t i = 0;
-
-    // Loop either over symop characters or in hsc over pairs of hashes.
-    while (symop_char(peek(env, i))) {
-#ifdef HSC_EXT
-      // In hsc only duplicated # are part of operators. Regular # are
-      // reserved for hsc directives.
-      if (char_at(env, i, '#')) {
-        uint32_t c = peek(env, i + 1);
-        if (c == '#') {
-          i += 2;
-        }
-        else if (c == '{') {
-          break;
-        }
-        else {
-          i++;
-        }
-      } else {
-        i++;
-      }
-#else
-      i++;
-#endif
-    }
-
-    env->symop = i;
+    env->symop = advance_while(env, 0, symop_char);
     if (env->symop > 0)
       dbg("symop: %d, %.*ls\n", env->symop, env->symop, array_get(&env->state->lookahead, env->state->offset));
   }
   return env->symop;
 }
+#endif
 
 static bool is_symop(Env *env) {
   return symop_lookahead(env) > 0;
@@ -2182,17 +2160,16 @@ static Lexed lex_symop(Env *env) {
         // A `?` can be the head of an implicit parameter, if followed by a varid.
         return varid_start_char(peek1(env)) ? LNothing : LSymop;
       case '#': {
-        uint32_t c2 = peek1(env);
-        switch (c2) {
-#ifdef HSC_EXT
-          default:
-            return LHscHash;
-#else
-          case ')':
-            return LUnboxedClose;
-          default:
-            return LHash;
-#endif
+        if (parsing_hsc) {
+          return LHscHash;
+        } else {
+          uint32_t c2 = peek1(env);
+          switch (c2) {
+            case ')':
+              return LUnboxedClose;
+            default:
+              return LHash;
+          }
         }
       }
       case '|':
@@ -2462,13 +2439,15 @@ static Lexed lex_extras(Env *env, bool bol) {
   return LNothing;
 }
 
+static Lexed lex_hsc_hash(Env *env);
+
 /**
  * The main lexing entry point, branching on the first character, then advancing as far as necessary to identify all
  * interesting tokens.
  */
 static Lexed lex(Env *env, bool bol) {
   SEQ(lex_extras(env, bol));
-  if (symop_char_not_hschash(peek0(env))) SEQ(lex_symop(env));
+  if (starts_symop(peek0(env))) SEQ(lex_symop(env));
   else switch (peek0(env)) {
     case 'w':
       return try_end_token(env, "where", LWhere);
@@ -2500,34 +2479,7 @@ static Lexed lex(Env *env, bool bol) {
       return LTexpCloser;
 #ifdef HSC_EXT
     case '#': {
-      uint32_t c2 = peek1(env);
-      switch (c2) {
-      case '#': {
-        int32_t c3 = peek2(env);
-        switch (c3) {
-        case ')':
-          return LUnboxedClose;
-        case '|':
-          // Unboxed sum with missing space `(#| Int #)` in hsc mode so it actually looks like `(##| Int #)`
-          return LSymopSpecial;
-        case '#':
-          if (char_at(env, 3, '#')) {
-            // Unboxed unit `(##)` and hsc mode so it actually looks like `(####)`
-            return LSymopSpecial;
-          }
-          break;
-        default:
-          return LHash;
-        }
-        return (c3 == ')') ? LUnboxedClose : LHash;
-        break;
-      }
-      case '|':
-        return LSymopSpecial;
-      default:
-        return LHscHash;
-      }
-      break;
+      return lex_hsc_hash(env);
     }
 #endif
     default:
@@ -2718,119 +2670,6 @@ static Symbol qq_body(Env *env) {
         return finish(QQ_BODY, "qq_body");
       }
     } else S_ADVANCE;
-  }
-}
-
-// --------------------------------------------------------------------------------------------------------
-// hsc2hs directive with arbitrary C expressions
-// --------------------------------------------------------------------------------------------------------
-
-static Symbol hsc_args(Env *env, Symbol sym, bool directive_ends_with_newline) {
-  int depth = directive_ends_with_newline ? 0 : 1;
-  bool is_escaped = false;
-  bool in_string = false;
-  bool in_char = false;
-  bool in_line_comment = false;
-  bool in_region_comment = false;
-  for (;;) {
-    if (is_eof(env)) {
-      return finish_marked(env, sym, "hsc_args");
-    }
-
-    int32_t c = PEEK;
-    switch (c) {
-      case '\'':
-        if (is_escaped) {
-          is_escaped = false;
-        }
-        else if (in_string || in_line_comment || in_region_comment) {
-          // Skip the character within string literal.
-        }
-        else {
-          in_char = !in_char;
-        }
-        break;
-      case '"':
-        if (is_escaped) {
-          is_escaped = false;
-        }
-        else if (in_char || in_line_comment || in_region_comment) {
-          // Skip the contents of character literal.
-        }
-        else {
-          in_string = !in_string;
-        }
-        break;
-      case '(':
-      case '[':
-      case '{':
-        if (!in_string && !in_char && !is_escaped && !in_line_comment && !in_region_comment) {
-          depth++;
-        }
-        break;
-      case ')':
-      case ']':
-      case '}':
-        if (!in_string && !in_char && !is_escaped && !in_line_comment && !in_region_comment) {
-          depth--;
-          if (directive_ends_with_newline ? depth < 0 : depth <= 0) {
-            return finish_marked(env, sym, "hsc_args");
-          }
-        }
-        break;
-      case '\\':
-        if (!in_line_comment && !in_region_comment) {
-          is_escaped = true;
-        }
-        break;
-      case '\r':
-        break;
-      case '\n':
-        if (in_line_comment) {
-          in_line_comment = false;
-        }
-        else if (in_region_comment) {
-          // Consume newline while we’re in comment.
-        }
-        else if (is_escaped) {
-          is_escaped = false;
-        }
-        else if (directive_ends_with_newline && depth <= 0) {
-          return finish_marked(env, sym, "hsc_args");
-        }
-        break;
-      case '/':
-        if (!in_line_comment && !in_region_comment) {
-          S_ADVANCE;
-          int32_t next = PEEK;
-          switch (next) {
-          case '/':
-            in_line_comment = true;
-            break;
-          case '*':
-            in_region_comment = true;
-            break;
-          default:
-            // Nothing to do
-          }
-        }
-        break;
-      case '*': {
-        if (in_region_comment) {
-          S_ADVANCE;
-          if (PEEK == '/') {
-            in_region_comment = false;
-          }
-        } else {
-          is_escaped = false;
-        }
-        break;
-      }
-      default:
-        is_escaped = false;
-    }
-
-    S_ADVANCE;
   }
 }
 
@@ -3578,6 +3417,8 @@ static Symbol interior(Env *env, bool whitespace) {
 // Initial actions
 // --------------------------------------------------------------------------------------------------------
 
+static Symbol hsc_args(Env *env, Symbol sym, bool directive_ends_with_newline);
+
 /**
  * These are conditioned only on symbols and don't advance, except for `qq_body`, which cannot fail.
  */
@@ -3589,8 +3430,10 @@ static Symbol pre_ws_commands(Env *env) {
   // Leading whitespace must be included in the node.
   if (valid(env, QQ_BODY)) return qq_body(env);
   // hsc directives consume all whitespace inside them
+#ifdef HSC_EXT
   if (valid(env, HSC_ARGS_NESTED)) return hsc_args(env, HSC_ARGS_NESTED, false);
   if (valid(env, HSC_ARGS_NEWLINE)) return hsc_args(env, HSC_ARGS_NEWLINE, true);
+#endif
   if (newline_active(env)) SEQ(newline_post(env));
   else if (env->state->newline.state == NResume) SEQ(newline_resume(env));
   return FAIL;
