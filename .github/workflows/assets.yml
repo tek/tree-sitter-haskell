@@ -18,15 +18,29 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
 
       - run: nix -L build .#parser-src
-      - name: Upload parser sources
+      - name: Upload vanilla parser sources
         uses: actions/upload-artifact@v6
         with:
           name: tree-sitter-haskell-src
           path: result/src
 
       - run: nix -L build .#parser-wasm
-      - name: Upload wasm binary
+      - name: Upload vanilla grammar wasm binary
         uses: actions/upload-artifact@v6
         with:
           name: tree-sitter-haskell-wasm
           path: result/tree-sitter-haskell.wasm
+
+      - run: nix -L build .#parser-hsc-src
+      - name: Upload hsc parser sources
+        uses: actions/upload-artifact@v6
+        with:
+          name: tree-sitter-haskell-src
+          path: result/hsc/src
+
+      - run: nix -L build .#parser-hsc-wasm
+      - name: Upload hsc grammar wasm binary
+        uses: actions/upload-artifact@v6
+        with:
+          name: tree-sitter-haskell-wasm
+          path: result/tree-sitter-hsc.wasm

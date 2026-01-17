@@ -37,6 +37,7 @@ module.exports = {
   // ------------------------------------------------------------------------
 
   _constructor: $ => alias($.name, $.constructor),
+  _decl_constructor: $ => $._constructor,
   _qualified_constructor: $ => qualified($, $._constructor),
   _qconid: $ => alias($._qualified_constructor, $.qualified),
   _conids: $ => choice($._qconid, $._constructor),
@@ -44,6 +45,8 @@ module.exports = {
   _con: $ => choice($._constructor, $._pconsym),
   _qcon: $ => choice($._qconid, $._pqconsym),
   _cons: $ => choice(prec('con', $._con), $._qcon),
+
+  _decl_con: $ => $._con,
 
   _constructor_ticked: $ => ticked($._constructor),
   _conop: $ => choice($._constructor_operator_alias, alias($._constructor_ticked, $.infix_id)),

@@ -1,8 +1,8 @@
-const id_char = /[\pL\p{Mn}\pN_']*/
-
-const varid_start_char = /[_\p{Ll}\p{Lo}]/
-
-const conid_start_char = /[\p{Lu}\p{Lt}]/
+const {
+  id_char,
+  varid_start_char,
+  conid_start_char,
+} = require('./util.js')
 
 module.exports = {
 
