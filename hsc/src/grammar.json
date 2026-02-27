@@ -2668,6 +2668,10 @@
         }
       ]
     },
+    "_exp_typed_hole": {
+      "type": "STRING",
+      "value": "_"
+    },
     "_exp_parens": {
       "type": "SEQ",
       "members": [
@@ -4906,6 +4910,15 @@
         {
           "type": "SYMBOL",
           "name": "_exp_name"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_exp_typed_hole"
+          },
+          "named": true,
+          "value": "typed_hole"
         },
         {
           "type": "SYMBOL",
@@ -13704,9 +13717,11 @@
     "_exp_name",
     "_exp_greedy",
     "_let",
+    "_exp_typed_hole",
     "_pat_apply_arg",
     "_pat_name",
     "_pat_texp",
+    "_pat_wildcard",
     "_tyconid",
     "_tyconids",
     "_tycon",

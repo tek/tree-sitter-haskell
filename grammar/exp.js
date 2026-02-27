@@ -30,6 +30,8 @@ module.exports = {
     prec('prefix', seq('\'\'', field('type', $.type))),
   ),
 
+  _exp_typed_hole: _ => '_',
+
   // ------------------------------------------------------------------------
   // tuples and parens
   // ------------------------------------------------------------------------
@@ -396,6 +398,7 @@ module.exports = {
     alias($._exp_case, $.case),
     alias($._exp_multi_way_if, $.multi_way_if),
     $._exp_name,
+    alias($._exp_typed_hole, $.typed_hole),
     $._universal,
   ),
 
