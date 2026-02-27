@@ -46,6 +46,7 @@ module.exports = {
     $._exp_name,
     $._exp_greedy,
     $._let,
+    $._exp_typed_hole,
 
     // ------------------------------------------------
     // pattern
@@ -54,6 +55,7 @@ module.exports = {
     $._pat_apply_arg,
     $._pat_name,
     $._pat_texp,
+    $._pat_wildcard,
 
     // ------------------------------------------------
     // type
