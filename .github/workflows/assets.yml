@@ -19,28 +19,28 @@ jobs:
 
       - run: nix -L build .#parser-src
       - name: Upload vanilla parser sources
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tree-sitter-haskell-src
           path: result/src
 
       - run: nix -L build .#parser-wasm
       - name: Upload vanilla grammar wasm binary
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tree-sitter-haskell-wasm
           path: result/tree-sitter-haskell.wasm
 
       - run: nix -L build .#parser-hsc-src
       - name: Upload hsc parser sources
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tree-sitter-haskell-src
           path: result/hsc/src
 
       - run: nix -L build .#parser-hsc-wasm
       - name: Upload hsc grammar wasm binary
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tree-sitter-haskell-wasm
           path: result/tree-sitter-hsc.wasm
