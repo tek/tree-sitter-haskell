@@ -1117,3 +1117,51 @@ a :: () => a
       (context
         (unit)
         (variable)))))
+
+================================================================================
+context: in first unboxed element
+================================================================================
+
+a :: (# A a => a, a #)
+a :: (# A a => a | a #)
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (unboxed_tuple
+        (context
+          (apply
+            (name)
+            (variable))
+          (variable))
+        (variable)))
+    (signature
+      (variable)
+      (unboxed_sum
+        (context
+          (apply
+            (name)
+            (variable))
+          (variable))
+        (variable)))))
+
+================================================================================
+context: error: missing operand for symop
+================================================================================
+
+a :: + a => a
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (signature
+      (variable)
+      (ERROR
+        (UNEXPECTED '+'))
+      (context
+        (variable)
+        (variable)))))

@@ -3339,8 +3339,19 @@ static CtrResult ctr_lookahead_step(Env *env, CtrState *state, Lexed next) {
  *
  * A context arrow is always a termination criterion; an infix operator only if CONTEXT isn't valid.
  */
-static Symbol constraint_lookahead(Env *env) {
+static Symbol constraint_lookahead(Env *env, Lexed next) {
   dbg("type lookahead\n");
+  switch (next) {
+    // A context cannot begin with a symop. While this could just be handled by more general rules, we treat this
+    // specially because the hash is valid for unboxed constructs.
+    // While we're at it, we can just discard any context with a symop at the beginning.
+    case LSymopSpecial:
+    case LSymop:
+    case LHash:
+      return FAIL;
+    default:
+      break;
+  }
   CtrState state = {.reset = 0};
   bool done = false;
   while (!done && not_eof(env)) {
@@ -3389,7 +3400,7 @@ static Symbol constraint_lookahead(Env *env) {
 // Actions that are executed for interior positions
 // --------------------------------------------------------------------------------------------------------
 
-static Symbol process_token_constraint(Env *env) {
+static Symbol process_token_constraint(Env *env, Lexed next) {
   if (
       valid(env, CONTEXT)
       ||
@@ -3399,7 +3410,7 @@ static Symbol process_token_constraint(Env *env) {
       ||
       valid(env, TYPE_INSTANCE)
       )
-    return constraint_lookahead(env);
+    return constraint_lookahead(env, next);
   return FAIL;
 }
 
@@ -3409,7 +3420,7 @@ static Symbol interior(Env *env, bool whitespace) {
   SEQ(resolve_semicolon(env, next));
   SEQ(process_token_interior(env, next));
   SEQ(process_token_symop(env, whitespace, next));
-  SEQ(process_token_constraint(env));
+  SEQ(process_token_constraint(env, next));
   SEQ(process_token_splice(env, next));
   return FAIL;
 }
