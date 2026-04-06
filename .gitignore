@@ -8,3 +8,4 @@
 /target/
 /.lib/
 /node_modules/
+/*.so
