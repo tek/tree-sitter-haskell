@@ -3,7 +3,7 @@
 
   inputs = {
     hix.url = "github:tek/hix";
-    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/d233902339c02a9c334e7e593de68855ad26c4cb";
     rust-overlay.url = "github:oxalica/rust-overlay";
     nix-filter.url = "github:numtide/nix-filter";
   };
@@ -14,6 +14,7 @@
       license = "MIT";
       license-file = "LICENSE";
       author = "Torsten Schmits";
+      language = "GHC2021";
       prelude = {
         enable = true;
         package = {
@@ -30,8 +31,8 @@
       library = {
         enable = true;
         dependencies = [
-          "exon >= 1.4 && < 1.7"
-          "optparse-applicative ^>= 0.17"
+          "exon >= 1.4 && < 1.9"
+          "optparse-applicative >= 0.17 && < 0.19"
           "path ^>= 0.9"
           "path-io >= 1.7 && < 1.9"
           "transformers"
@@ -41,9 +42,9 @@
       test = {
         enable = true;
         dependencies = [
-          "hedgehog >= 1.1 && < 1.3"
+          "hedgehog >= 1.1 && < 1.6"
           "path ^>= 0.9"
-          "tasty ^>= 1.4"
+          "tasty >= 1.4 && < 1.6"
           "tasty-hedgehog >= 1.3 && < 1.5"
         ];
       };

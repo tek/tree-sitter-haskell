@@ -102,12 +102,11 @@
       name = "tree-sitter-${name}-parser-wasm";
       inherit version;
       src = parserSrc;
-      nativeBuildInputs = [pkgs.nodejs pkgs.tree-sitter pkgs.emscripten];
+      nativeBuildInputs = [pkgs.tree-sitter pkgs.pkgsCross.wasi32.stdenv.cc];
+      env.TREE_SITTER_WASI_SDK_PATH = "${pkgs.pkgsCross.wasi32.stdenv.cc}";
 
       buildPhase = ''
       runHook preBuild
-      mkdir -p .emscriptencache
-      export EM_CACHE=$(pwd)/.emscriptencache
       tree-sitter build --wasm
       runHook postBuild
       '';
