@@ -284,7 +284,9 @@ data A = A
       (module
         (module_id))
       (import_list))
-    (comment)
+    (comment
+      (marker)
+      (content))
     (import
       (module
         (module_id)

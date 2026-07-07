@@ -209,7 +209,9 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (declarations
     (bind
       (variable)
@@ -270,7 +272,9 @@ allThePrimOps =
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (declarations
     (signature
       (variable)
@@ -354,9 +358,13 @@ cpp: precedence over comments
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (cpp)
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 cpp: label after newline
@@ -556,7 +564,9 @@ a = a
       (match
         (apply
           (variable)
-          (comment)
+          (comment
+            (marker)
+            (content))
           (label))))))
 
 ================================================================================
@@ -629,6 +639,8 @@ cpp: newline continuation
 (haskell
   (cpp)
   (cpp)
-  (comment)
+  (comment
+    (marker)
+    (content))
   (cpp)
   (cpp))

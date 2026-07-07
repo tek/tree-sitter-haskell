@@ -56,4 +56,26 @@ module.exports = {
 
   _bar: $ => seq(optional($._phantom_bar), '|'),
 
+  // The node types aliased here (`marker`/`content`, not to be confused with the fields of the
+  // same name) are deliberately named without the substring "comment": the upstream `tree-sitter
+  // test` highlighting-assertion parser identifies which nodes to scan for `-- <- capture`-style
+  // assertions by checking `node.kind().contains("comment")`, so a child type containing that
+  // substring gets misparsed as its own assertion comment (its content, e.g. `" <- module"`,
+  // recontains a spurious arrow), producing a bogus phantom assertion at the wrong column.
+  comment: $ => choice(
+    seq(
+      field('marker', alias($._comment_marker, $.marker)),
+      field('content', alias($._comment_text, $.content)),
+    ),
+    field('marker', alias($._comment_marker_only, $.marker)),
+  ),
+
+  haddock: $ => choice(
+    seq(
+      field('marker', alias($._haddock_marker, $.marker)),
+      field('content', alias($._comment_text, $.content)),
+    ),
+    field('marker', alias($._haddock_marker_only, $.marker)),
+  ),
+
 }

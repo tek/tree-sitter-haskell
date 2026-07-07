@@ -14,7 +14,9 @@
           left_operand: (variable [2, 4] - [2, 5])
           operator: (operator [3, 2] - [3, 4])
           right_operand: (variable [3, 5] - [3, 6]))))
-    (comment [5, 0] - [10, 86])
+    (comment [5, 0] - [10, 86]
+      marker: (marker [5, 0] - [5, 2])
+      content: (content [5, 2] - [10, 86]))
     (bind [11, 0] - [13, 6]
       name: (variable [11, 0] - [11, 1])
       match: (match [11, 2] - [13, 6]

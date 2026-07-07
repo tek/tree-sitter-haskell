@@ -208,7 +208,9 @@ data A = A {- a -}~A
         (data_constructor
           (prefix
             (constructor)
-            (comment)
+            (comment
+              (marker)
+              (content))
             (lazy_field
               (name))))))))
 
@@ -326,7 +328,9 @@ a = a
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (marker)
+      (content))))
 
 ================================================================================
 pragma: between decls
@@ -366,7 +370,9 @@ a = a
       (match
         (variable)))
     (pragma)
-    (comment)
+    (comment
+      (marker)
+      (content))
     (bind
       (variable)
       (match
@@ -389,7 +395,9 @@ a = a
       (match
         (variable)))
     (pragma)
-    (comment)
+    (comment
+      (marker)
+      (content))
     (bind
       (variable)
       (match
@@ -414,7 +422,9 @@ a = a
         (do
           (exp
             (variable)))))
-    (comment)
+    (comment
+      (marker)
+      (content))
     (pragma)
     (bind
       (variable)

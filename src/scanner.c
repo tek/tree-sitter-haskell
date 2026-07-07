@@ -139,7 +139,10 @@ typedef enum {
   BAR,
   DERIVING,
   COMMENT,
+  COMMENT_ONLY,
   HADDOCK,
+  HADDOCK_ONLY,
+  COMMENT_TEXT,
   CPP,
   PRAGMA,
   QQ_START,
@@ -197,7 +200,10 @@ static const char *sym_names[] = {
   "bar",
   "deriving",
   "comment",
+  "comment_only",
   "haddock",
+  "haddock_only",
+  "comment_text",
   "cpp",
   "pragma",
   "qq_start",
@@ -443,6 +449,16 @@ typedef struct {
 } Newline;
 
 /**
+ * Set when a comment/haddock marker is lexed, and read back when the following `COMMENT_TEXT` is lexed, since the body
+ * can't tell from the lexer position alone whether it's inside `{- -}` or `--`, or whether heralds on continuation
+ * lines should be swallowed as haddock text (see `continue_inline_comment`).
+ */
+typedef struct {
+  bool block;
+  bool haddock;
+} Comment;
+
+/**
  * Whenever the lexer is advanced over non-(leading-)whitespace, the consumed character is appended to this vector.
  * This avoids having to ensure that different components that need to examine multiple lookahead characters have to be
  * run in the correct order.
@@ -590,6 +606,7 @@ typedef Array(int32_t) Lookahead;
 typedef struct {
   Array(Context) contexts;
   Newline newline;
+  Comment comment;
   Lookahead lookahead;
   uint32_t offset;
 #if DEBUG
@@ -2528,49 +2545,26 @@ static Symbol cpp_line(Env *env) {
 // Comments
 // --------------------------------------------------------------------------------------------------------
 
-static Symbol comment_type_char(Env *env, bool line_comment, uint32_t i) {
-  while (not_eof(env)) {
-    int32_t c = peek(env, i++);
-    if (c == '|' || c == '^') return HADDOCK;
-    else if (!is_space_char_or_tab(c)) break;
+/**
+ * Look for a haddock herald (`|` or `^`) at or after `start`, skipping whitespace in between.
+ * Returns whether one was found, writing its index to `*at` if so (unless `at` is NULL).
+ */
+static bool find_haddock_herald(Env *env, uint32_t start, uint32_t *at) {
+  for (uint32_t i = start; not_eof(env); i++) {
+    int32_t c = peek(env, i);
+    if (c == '|' || c == '^') {
+      if (at) *at = i;
+      return true;
+    }
+    if (!is_space_char_or_tab(c)) return false;
   }
-  return COMMENT;
+  return false;
 }
 
 /**
- * Distinguish between haddocks and plain comments by matching on the first non-whitespace character.
+ * Since {- -} comments can be nested arbitrarily, this has to keep track of how many have been opened, so that the
+ * outermost comment isn't closed prematurely.
  */
-static Symbol comment_type(Env *env, bool line_comment) {
-  uint32_t i = 2;
-  while (line_comment && peek(env, i) == '-') i++;
-  return comment_type_char(env, line_comment, i);
-}
-
-static bool continue_inline_comment(Env *env, Symbol current) {
-  S_ADVANCE;
-  reset_lookahead(env);
-  take_space_from(env, 0);
-  reset_lookahead(env);
-  if (line_comment_herald(env)) {
-    reset_lookahead(env);
-    return current == HADDOCK || comment_type_char(env, true, 0) == COMMENT;
-  }
-  else return false;
-}
-
-/**
- * Inline comments extend over all consecutive lines that start with comments.
- * Could be improved by requiring equal indent.
- */
-static Symbol inline_comment(Env *env) {
-  Symbol sym = comment_type(env, true);
-  do {
-    take_line(env);
-    MARK("inline comment");
-  } while (continue_inline_comment(env, sym));
-  return sym;
-}
-
 static uint32_t consume_block_comment(Env *env, uint32_t col) {
   uint32_t level = 0;
   for (;;) {
@@ -2610,13 +2604,85 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
 }
 
 /**
- * Since {- -} comments can be nested arbitrarily, this has to keep track of how many have been opened, so that the
- * outermost comment isn't closed prematurely.
+ * Check whether the (empty so far) line following a comment/haddock marker or a `comment_text` line is continued by
+ * another comment line, consuming the newline and the next line's leading whitespace either way.
+ * A plain comment only continues into another plain comment, but a haddock continues into either, since the plain one
+ * is then considered part of the haddock text (see `comment: plain comment before haddock` in the corpus).
  */
-static Symbol block_comment(Env *env) {
-  Symbol sym = comment_type(env, false);
-  consume_block_comment(env, env->state->lookahead.size);
-  return finish_marked(env, sym, "block_comment");
+static bool continue_inline_comment(Env *env, bool haddock) {
+  S_ADVANCE;
+  reset_lookahead(env);
+  take_space_from(env, 0);
+  reset_lookahead(env);
+  if (line_comment_herald(env)) {
+    reset_lookahead(env);
+    return haddock || !find_haddock_herald(env, 0, NULL);
+  }
+  else return false;
+}
+
+/**
+ * Consume and mark the opening delimiter of a comment or haddock (`--`, `-- |`, `{- ^`, ...), storing its shape so
+ * that `comment_text` can consume the rest without having to reclassify it.
+ *
+ * The delimiter (`--`, plus any repeated dashes, or `{-`) is marked as the end first; if a haddock herald follows, the
+ * mark is extended to include it.
+ * Otherwise, the mark stays where it is even though `find_haddock_herald` has advanced the lexer further while
+ * looking for one – `mark_end` doesn't need to match the position the lexer ends up at, so the whitespace inspected
+ * along the way is simply left for `comment_text` to consume (the same trick as `continue_inline_comment`).
+ *
+ * tree-sitter requires a non-terminal extra rule's ending to be unambiguous, so `comment`/`haddock` can't express "the
+ * marker, optionally followed by text" directly – there would be two valid actions (stop, or shift text) at the same
+ * state. Instead, this looks ahead for whether there's any text at all, and picks one of two marker symbols
+ * accordingly, so the grammar can use an unambiguous `choice` between "marker" and "marker then text" productions.
+ *
+ * For a line comment whose own line ends right after the marker, this still counts as having text if a following
+ * line continues it (`continue_inline_comment`, called here purely for this prediction) – `comment_text` re-derives
+ * the same result later when it actually consumes the text, since speculative advancement done here for the
+ * prediction doesn't move the mark set above.
+ */
+static Symbol comment_marker(Env *env, bool block) {
+  uint32_t delim = 2;
+  while (!block && peek(env, delim) == '-') delim++;
+  advance_over(env, delim - 1);
+  MARK("comment_marker");
+  bool haddock = false;
+  uint32_t at;
+  if (find_haddock_herald(env, delim, &at)) {
+    advance_over(env, at);
+    MARK("haddock_marker");
+    haddock = true;
+  }
+  env->state->comment.block = block;
+  env->state->comment.haddock = haddock;
+  bool has_text = block ?
+    not_eof(env) :
+    (not_eof(env) && (!is_newline(PEEK) || continue_inline_comment(env, haddock)));
+  Symbol sym = haddock ?
+    (has_text ? HADDOCK : HADDOCK_ONLY) :
+    (has_text ? COMMENT : COMMENT_ONLY);
+  return finish(sym, "comment_marker");
+}
+
+/**
+ * Consume the text following a comment/haddock marker, previously classified by `comment_marker`, which only
+ * requests this token (via `COMMENT`/`HADDOCK`, as opposed to `COMMENT_ONLY`/`HADDOCK_ONLY`) once it has confirmed
+ * that there's text to consume, so this cannot fail.
+ * Inline comments extend over all consecutive lines that start with comments; could be improved by requiring equal
+ * indent.
+ * Block comments consume up to the matching closing delimiter, handling arbitrary nesting.
+ */
+static Symbol comment_text(Env *env) {
+  if (env->state->comment.block) {
+    consume_block_comment(env, env->state->lookahead.size);
+    return finish_marked(env, COMMENT_TEXT, "comment_text");
+  }
+  bool haddock = env->state->comment.haddock;
+  do {
+    take_line(env);
+    MARK("comment_text");
+  } while (continue_inline_comment(env, haddock));
+  return COMMENT_TEXT;
 }
 
 // --------------------------------------------------------------------------------------------------------
@@ -2808,9 +2874,9 @@ static Symbol process_token_safe(Env *env, Lexed next) {
     case LPragma:
       return pragma(env);
     case LBlockComment:
-      return block_comment(env);
+      return comment_marker(env, true);
     case LLineComment:
-      return inline_comment(env);
+      return comment_marker(env, false);
     case LCppElse:
       return cpp_else(env, true);
     case LCpp:
@@ -3430,7 +3496,8 @@ static Symbol interior(Env *env, bool whitespace) {
 static Symbol hsc_args(Env *env, Symbol sym, bool directive_ends_with_newline);
 
 /**
- * These are conditioned only on symbols and don't advance, except for `qq_body`, which cannot fail.
+ * These are conditioned only on symbols and don't advance, except for `qq_body` and `comment_text`, which cannot
+ * fail.
  */
 static Symbol pre_ws_commands(Env *env) {
   SEQ(texp_context(env));
@@ -3439,6 +3506,7 @@ static Symbol pre_ws_commands(Env *env) {
   SEQ(end_brace(env));
   // Leading whitespace must be included in the node.
   if (valid(env, QQ_BODY)) return qq_body(env);
+  if (valid(env, COMMENT_TEXT)) return comment_text(env);
   // hsc directives consume all whitespace inside them
 #ifdef HSC_EXT
   if (valid(env, HSC_ARGS_NESTED)) return hsc_args(env, HSC_ARGS_NESTED, false);
@@ -3503,6 +3571,7 @@ static bool scan(Env *env) {
 typedef struct {
   unsigned contexts;
   Newline newline;
+  Comment comment;
 #if DEBUG
   unsigned parse;
 #endif
@@ -3532,7 +3601,7 @@ bool tree_sitter_haskell_external_scanner_scan(void *payload, TSLexer *lexer, co
 
 unsigned tree_sitter_haskell_external_scanner_serialize(void *payload, char *buffer) {
   State *state = (State *) payload;
-  Persist persist = {.contexts = state->contexts.size, .newline = state->newline};
+  Persist persist = {.contexts = state->contexts.size, .newline = state->newline, .comment = state->comment};
 #if DEBUG
   persist.parse = state->parse.size;
 #endif
@@ -3560,6 +3629,7 @@ void tree_sitter_haskell_external_scanner_deserialize(void *payload, const char 
   }
   unsigned contexts_size = persist->contexts * sizeof(Context);
   state->newline = persist->newline;
+  state->comment = persist->comment;
   array_reserve(&state->contexts, persist->contexts);
   state->contexts.size = persist->contexts;
   if (length > 0)

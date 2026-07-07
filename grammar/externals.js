@@ -100,8 +100,17 @@ module.exports = {
     // Detect and emit text nodes for comments and CPP.
     // In particular, #else branches of CPP conditionals a fully contained in the resulting node, since their nonlinear
     // nature means they cannot be parsed.
-    $.comment,
-    $.haddock,
+    // Comments and haddocks are split into their opening marker and the remaining text, combined into `$.comment` and
+    // `$.haddock` in `lexeme.js` – this lets query authors single out the marker (`--`, `-- |`, `{- ^`, ...) without
+    // having to parse comment syntax themselves.
+    // The marker comes in two variants depending on whether it's followed by text, since a non-terminal extra rule
+    // (as `comment`/`haddock` have to be, to be usable anywhere) must have an unambiguous ending – it can't express
+    // "text optionally follows the marker" directly.
+    $._comment_marker,
+    $._comment_marker_only,
+    $._haddock_marker,
+    $._haddock_marker_only,
+    $._comment_text,
     $.cpp,
     $.pragma,
 

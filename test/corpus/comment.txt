@@ -10,7 +10,9 @@ comment: line
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: multi
@@ -26,13 +28,17 @@ f = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (declarations
     (bind
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (marker)
+      (content))))
 
 ================================================================================
 comment: hash inside
@@ -43,7 +49,9 @@ comment: hash inside
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: newline termination
@@ -54,7 +62,8 @@ comment: newline termination
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)))
 
 ================================================================================
 comment: nested
@@ -73,7 +82,9 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (declarations
     (bind
       (variable)
@@ -91,8 +102,12 @@ comment: unicode symbol
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
-  (comment))
+  (comment
+    (marker)
+    (content))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: repeated minus before multiline end
@@ -112,8 +127,12 @@ a
   (header
     (module
       (module_id)))
-  (comment)
-  (comment))
+  (comment
+    (marker)
+    (content))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: double brace before nested begin
@@ -129,7 +148,9 @@ module A where
   (header
     (module
       (module_id)))
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: terminated by eof
@@ -151,7 +172,9 @@ aaa
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (marker)
+      (content))))
 
 ================================================================================
 comment: end of line
@@ -167,7 +190,9 @@ a = a -- a
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (marker)
+      (content))))
 
 ================================================================================
 comment: escaped heralds
@@ -181,7 +206,9 @@ comment: escaped heralds
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: multiple braces
@@ -195,7 +222,9 @@ comment: multiple braces
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: symop char after first space
@@ -214,12 +243,16 @@ a = a
       (variable)
       (match
         (variable)))
-    (comment)
+    (comment
+      (marker)
+      (content))
     (bind
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (marker)
+      (content))))
 
 ================================================================================
 comment: haddock top level
@@ -249,15 +282,23 @@ data A
           (prefix
             (constructor)
             (name)
-            (haddock)
+            (haddock
+              (marker)
+              (content))
             (name)))))
-    (haddock)
-    (haddock)
+    (haddock
+      (marker)
+      (content))
+    (haddock
+      (marker)
+      (content))
     (bind
       (variable)
       (match
         (variable)))
-    (haddock)
+    (haddock
+      (marker)
+      (content))
     (data_type
       (name))))
 
@@ -272,7 +313,9 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (declarations
     (bind
       (variable)
@@ -289,7 +332,9 @@ comment: indented
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment))
+  (comment
+    (marker)
+    (content)))
 
 ================================================================================
 comment: haddock function parameter
@@ -309,10 +354,14 @@ a ::
   (declarations
     (signature
       (variable)
-      (haddock)
+      (haddock
+        (marker)
+        (content))
       (function
         (variable)
-        (haddock)
+        (haddock
+          (marker)
+          (content))
         (variable)))))
 
 ================================================================================
@@ -333,9 +382,150 @@ a = a
       (variable)
       (match
         (variable)))
-    (comment)
-    (haddock)
+    (comment
+      (marker)
+      (content))
+    (haddock
+      (marker)
+      (content))
     (bind
       (variable)
       (match
         (variable)))))
+
+================================================================================
+comment: haddock with no space before herald
+================================================================================
+
+{-|a-}
+{-^a-}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (haddock
+    (marker)
+    (content))
+  (haddock
+    (marker)
+    (content)))
+
+================================================================================
+comment: line dashes directly followed by herald character are an operator, not haddock
+================================================================================
+
+a = a
+--|a
+b = b
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (ERROR
+    (declarations
+      (bind
+        (variable)
+        (match
+          (variable))))
+    (ERROR)
+    (variable))
+  (declarations
+    (bind
+      (variable)
+      (match
+        (variable)))))
+
+================================================================================
+comment: haddock with extra space or tab before herald
+================================================================================
+
+--   | a
+
+--	| a
+
+{-	|a-}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (haddock
+    (marker)
+    (content))
+  (haddock
+    (marker)
+    (content))
+  (haddock
+    (marker)
+    (content)))
+
+================================================================================
+comment: extra dashes before herald
+================================================================================
+
+--- | a
+
+---- | a
+
+----------------------------
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (haddock
+    (marker)
+    (content))
+  (haddock
+    (marker)
+    (content))
+  (comment
+    (marker)))
+
+================================================================================
+comment: bare haddock marker
+================================================================================
+
+a = a
+-- |
+b = b
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (variable)))
+    (haddock
+      (marker))
+    (bind
+      (variable)
+      (match
+        (variable)))))
+
+================================================================================
+comment: bare haddock marker in block form still has text
+================================================================================
+
+{-|-}
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (haddock
+    (marker)
+    (content)))
+
+================================================================================
+comment: consecutive haddock lines merge
+================================================================================
+
+-- | a
+-- | b
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (haddock
+    (marker)
+    (content)))

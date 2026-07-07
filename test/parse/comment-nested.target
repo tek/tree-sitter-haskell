@@ -1,2 +1,4 @@
 (haskell [0, 0] - [7, 0]
-  (comment [0, 0] - [6, 2]))
+  (comment [0, 0] - [6, 2]
+    marker: (marker [0, 0] - [0, 2])
+    content: (content [0, 2] - [6, 2])))

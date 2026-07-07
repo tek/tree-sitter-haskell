@@ -4,7 +4,7 @@
   (quoter) @injection.language
   (quasiquote_body) @injection.content)
 
-((comment) @injection.content
+(comment content: (content) @injection.content
   (#set! injection.language "comment"))
 
 ; -----------------------------------------------------------------------------

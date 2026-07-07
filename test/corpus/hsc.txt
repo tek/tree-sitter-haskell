@@ -8,16 +8,13 @@ a = #{poke struct foo_t, field}
 --------------------------------------------------------------------------------
 
 (haskell
-  declarations:
-  (declarations
+  declarations: (declarations
     (bind
       name: (variable)
-      match:
-        (match
-          expression:
-            (hsc
-              name: (hsc_directive_name)
-              body: (hsc_args))))))
+      match: (match
+        expression: (hsc
+          name: (hsc_directive_name)
+          body: (hsc_args))))))
 
 ================================================================================
 hsc: #let pragma
@@ -56,7 +53,6 @@ a = 1
       (match
         (literal
           (integer))))))
-
 
 ================================================================================
 hsc: #{...}
@@ -519,10 +515,14 @@ pattern AcceptConn = SockOpt (-1) (-1)
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (marker)
+    (content))
   (cpp)
   (cpp)
-  (haddock)
+  (haddock
+    (marker)
+    (content))
   (declarations
     (pattern_synonym
       (signature
@@ -813,7 +813,6 @@ a = a A.## a
             (operator))
           (variable))))))
 
-
 ================================================================================
 hsc: closing brace interaction with indentation
 :language(hsc)
@@ -959,7 +958,6 @@ foreign import ccall #{foo f} f :: Int -> Int
         (function
           (name)
           (name))))))
-
 
 ================================================================================
 hsc: hsc directive in import list
