@@ -1334,16 +1334,6 @@
             "named": true
           }
         ]
-      },
-      "marker": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "marker",
-            "named": true
-          }
-        ]
       }
     }
   },
@@ -3145,16 +3135,6 @@
         "types": [
           {
             "type": "content",
-            "named": true
-          }
-        ]
-      },
-      "marker": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "marker",
             "named": true
           }
         ]
@@ -6291,10 +6271,6 @@
   {
     "type": "let",
     "named": false
-  },
-  {
-    "type": "marker",
-    "named": true
   },
   {
     "type": "mdo",

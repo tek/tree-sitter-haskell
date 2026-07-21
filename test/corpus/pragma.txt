@@ -209,7 +209,6 @@ data A = A {- a -}~A
           (prefix
             (constructor)
             (comment
-              (marker)
               (content))
             (lazy_field
               (name))))))))
@@ -329,7 +328,6 @@ a = a
       (match
         (variable)))
     (comment
-      (marker)
       (content))))
 
 ================================================================================
@@ -371,7 +369,6 @@ a = a
         (variable)))
     (pragma)
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -396,7 +393,6 @@ a = a
         (variable)))
     (pragma)
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -423,7 +419,6 @@ a = a
           (exp
             (variable)))))
     (comment
-      (marker)
       (content))
     (pragma)
     (bind

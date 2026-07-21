@@ -286,14 +286,12 @@ a = a ----- a
       (match
         (variable)))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
       (match
         (variable)))
     (comment
-      (marker)
       (content))))
 
 ================================================================================
@@ -314,7 +312,6 @@ a = a ------> a ----- %
           (operator)
           (variable))))
     (comment
-      (marker)
       (content))))
 
 ================================================================================
@@ -357,7 +354,6 @@ a = a $[a]
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind
@@ -571,7 +567,6 @@ a = a A.$ a
         (prefix_id
           (operator))))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -1313,7 +1308,6 @@ a = a A.? a
         (prefix_id
           (operator))))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -1475,7 +1469,6 @@ type A = a - 1
           (operator)
           (variable))))
     (comment
-      (marker)
       (content))
     (bind
       (variable)

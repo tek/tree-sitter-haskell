@@ -100,17 +100,18 @@ module.exports = {
     // Detect and emit text nodes for comments and CPP.
     // In particular, #else branches of CPP conditionals a fully contained in the resulting node, since their nonlinear
     // nature means they cannot be parsed.
-    // Comments and haddocks are split into their opening marker and the remaining text, combined into `$.comment` and
-    // `$.haddock` in `lexeme.js` – this lets query authors single out the marker (`--`, `-- |`, `{- ^`, ...) without
-    // having to parse comment syntax themselves.
-    // The marker comes in two variants depending on whether it's followed by text, since a non-terminal extra rule
-    // (as `comment`/`haddock` have to be, to be usable anywhere) must have an unambiguous ending – it can't express
-    // "text optionally follows the marker" directly.
-    $._comment_marker,
-    $._comment_marker_only,
-    $._haddock_marker,
-    $._haddock_marker_only,
-    $._comment_text,
+    // Comments and haddocks are split into their opening delimiter and the remaining text so that query authors can
+    // single out the body (`content`) – e.g. to inject a language into comment text without the leading `--`.
+    // The scanner emits a hidden *start* token for the delimiter, extending it through the `|`/`^` herald for the
+    // haddock variants; the body is then parsed by the scanner again as `_comment_body`. See `lexeme.js` for why the
+    // herald can't be deferred to the grammar.
+    // Each variant comes in a `_only` form for the case where no body follows, since an extra rule (as `comment`/
+    // `haddock` have to be) must have an unambiguous ending and so can't express `optional(body)` directly.
+    $._comment_start,
+    $._comment_start_only,
+    $._haddock_start,
+    $._haddock_start_only,
+    $._comment_body,
     $.cpp,
     $.pragma,
 

@@ -138,11 +138,11 @@ typedef enum {
   ARROW,
   BAR,
   DERIVING,
-  COMMENT,
-  COMMENT_ONLY,
-  HADDOCK,
-  HADDOCK_ONLY,
-  COMMENT_TEXT,
+  COMMENT_START,
+  COMMENT_START_ONLY,
+  HADDOCK_START,
+  HADDOCK_START_ONLY,
+  COMMENT_BODY,
   CPP,
   PRAGMA,
   QQ_START,
@@ -199,11 +199,11 @@ static const char *sym_names[] = {
   "arrow",
   "bar",
   "deriving",
-  "comment",
-  "comment_only",
-  "haddock",
-  "haddock_only",
-  "comment_text",
+  "comment_start",
+  "comment_start_only",
+  "haddock_start",
+  "haddock_start_only",
+  "comment_body",
   "cpp",
   "pragma",
   "qq_start",
@@ -449,8 +449,8 @@ typedef struct {
 } Newline;
 
 /**
- * Set when a comment/haddock marker is lexed, and read back when the following `COMMENT_TEXT` is lexed, since the body
- * can't tell from the lexer position alone whether it's inside `{- -}` or `--`, or whether heralds on continuation
+ * Set when a comment/haddock start token is lexed, and read back when the following `COMMENT_BODY` is lexed, since the
+ * body can't tell from the lexer position alone whether it's inside `{- -}` or `--`, or whether heralds on continuation
  * lines should be swallowed as haddock text (see `continue_inline_comment`).
  */
 typedef struct {
@@ -2604,7 +2604,7 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
 }
 
 /**
- * Check whether the (empty so far) line following a comment/haddock marker or a `comment_text` line is continued by
+ * Check whether the (empty so far) line following a comment/haddock delimiter or a `comment_body` line is continued by
  * another comment line, consuming the newline and the next line's leading whitespace either way.
  * A plain comment only continues into another plain comment, but a haddock continues into either, since the plain one
  * is then considered part of the haddock text (see `comment: plain comment before haddock` in the corpus).
@@ -2622,67 +2622,64 @@ static bool continue_inline_comment(Env *env, bool haddock) {
 }
 
 /**
- * Consume and mark the opening delimiter of a comment or haddock (`--`, `-- |`, `{- ^`, ...), storing its shape so
- * that `comment_text` can consume the rest without having to reclassify it.
+ * Consume and mark the hidden opening delimiter of a comment or haddock, recording its shape so that `comment_body`
+ * can consume the rest without having to reclassify it.
  *
- * The delimiter (`--`, plus any repeated dashes, or `{-`) is marked as the end first; if a haddock herald follows, the
- * mark is extended to include it.
- * Otherwise, the mark stays where it is even though `find_haddock_herald` has advanced the lexer further while
- * looking for one – `mark_end` doesn't need to match the position the lexer ends up at, so the whitespace inspected
- * along the way is simply left for `comment_text` to consume (the same trick as `continue_inline_comment`).
+ * The delimiter is `--` (plus any repeated dashes) or `{-`; for a haddock the mark is extended through the `|`/`^`
+ * herald, so the emitted start token spans everything up to the body. The scanner classifies the herald itself
+ * because the grammar can't: `comment`/`haddock` are `extras`, and the external operator tokens valid for a following
+ * expression would preempt any internal `|`/`^` literal placed here.
  *
- * tree-sitter requires a non-terminal extra rule's ending to be unambiguous, so `comment`/`haddock` can't express "the
- * marker, optionally followed by text" directly – there would be two valid actions (stop, or shift text) at the same
- * state. Instead, this looks ahead for whether there's any text at all, and picks one of two marker symbols
- * accordingly, so the grammar can use an unambiguous `choice` between "marker" and "marker then text" productions.
+ * `find_haddock_herald` may advance the lexer past the mark while searching; for a plain comment the mark stays at the
+ * delimiter and that lookahead is left for `comment_body` to re-consume.
  *
- * For a line comment whose own line ends right after the marker, this still counts as having text if a following
- * line continues it (`continue_inline_comment`, called here purely for this prediction) – `comment_text` re-derives
- * the same result later when it actually consumes the text, since speculative advancement done here for the
- * prediction doesn't move the mark set above.
+ * Since an extra rule can't express `optional(body)` (it needs an unambiguous ending), this looks ahead for whether a
+ * body follows and picks the matching `_only` variant when not, so the grammar can choose between "start then body"
+ * and "start alone". For a line comment whose own line ends right after the delimiter/herald, a continuation line
+ * still counts as a body (`continue_inline_comment`, called here only for the prediction; `comment_body` re-derives it
+ * when it actually consumes the text, as the speculative advancement doesn't move the mark set above).
  */
-static Symbol comment_marker(Env *env, bool block) {
+static Symbol comment_start(Env *env, bool block) {
   uint32_t delim = 2;
   while (!block && peek(env, delim) == '-') delim++;
   advance_over(env, delim - 1);
-  MARK("comment_marker");
+  MARK("comment_start");
   bool haddock = false;
   uint32_t at;
   if (find_haddock_herald(env, delim, &at)) {
     advance_over(env, at);
-    MARK("haddock_marker");
+    MARK("haddock_start");
     haddock = true;
   }
   env->state->comment.block = block;
   env->state->comment.haddock = haddock;
-  bool has_text = block ?
+  bool has_body = block ?
     not_eof(env) :
     (not_eof(env) && (!is_newline(PEEK) || continue_inline_comment(env, haddock)));
   Symbol sym = haddock ?
-    (has_text ? HADDOCK : HADDOCK_ONLY) :
-    (has_text ? COMMENT : COMMENT_ONLY);
-  return finish(sym, "comment_marker");
+    (has_body ? HADDOCK_START : HADDOCK_START_ONLY) :
+    (has_body ? COMMENT_START : COMMENT_START_ONLY);
+  return finish(sym, "comment_start");
 }
 
 /**
- * Consume the text following a comment/haddock marker, previously classified by `comment_marker`, which only
- * requests this token (via `COMMENT`/`HADDOCK`, as opposed to `COMMENT_ONLY`/`HADDOCK_ONLY`) once it has confirmed
- * that there's text to consume, so this cannot fail.
+ * Consume the body following a comment/haddock start token, using the shape recorded by `comment_start`, which only
+ * requests this token (via the non-`_only` start variants) once it has confirmed there's a body, so this can't fail.
  * Inline comments extend over all consecutive lines that start with comments; could be improved by requiring equal
  * indent.
  * Block comments consume up to the matching closing delimiter, handling arbitrary nesting.
  */
-static Symbol comment_text(Env *env) {
+static Symbol comment_body(Env *env) {
   if (env->state->comment.block) {
     consume_block_comment(env, env->state->lookahead.size);
-    return finish_marked(env, COMMENT_TEXT, "comment_text");
+    return finish_marked(env, COMMENT_BODY, "comment_body");
   }
   bool haddock = env->state->comment.haddock;
   do {
     take_line(env);
-    MARK("comment_text");
+    MARK("comment_body");
   } while (continue_inline_comment(env, haddock));
-  return COMMENT_TEXT;
+  return COMMENT_BODY;
 }
 
 // --------------------------------------------------------------------------------------------------------
@@ -2874,9 +2871,9 @@ static Symbol process_token_safe(Env *env, Lexed next) {
     case LPragma:
       return pragma(env);
     case LBlockComment:
-      return comment_marker(env, true);
+      return comment_start(env, true);
     case LLineComment:
-      return comment_marker(env, false);
+      return comment_start(env, false);
     case LCppElse:
       return cpp_else(env, true);
     case LCpp:
@@ -3496,7 +3493,7 @@ static Symbol interior(Env *env, bool whitespace) {
 static Symbol hsc_args(Env *env, Symbol sym, bool directive_ends_with_newline);
 
 /**
- * These are conditioned only on symbols and don't advance, except for `qq_body` and `comment_text`, which cannot
+ * These are conditioned only on symbols and don't advance, except for `qq_body` and `comment_body`, which cannot
  * fail.
  */
 static Symbol pre_ws_commands(Env *env) {
@@ -3506,7 +3503,7 @@ static Symbol pre_ws_commands(Env *env) {
   SEQ(end_brace(env));
   // Leading whitespace must be included in the node.
   if (valid(env, QQ_BODY)) return qq_body(env);
-  if (valid(env, COMMENT_TEXT)) return comment_text(env);
+  if (valid(env, COMMENT_BODY)) return comment_body(env);
   // hsc directives consume all whitespace inside them
 #ifdef HSC_EXT
   if (valid(env, HSC_ARGS_NESTED)) return hsc_args(env, HSC_ARGS_NESTED, false);

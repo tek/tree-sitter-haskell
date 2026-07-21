@@ -213,7 +213,6 @@ a = [e|
       (match
         (quote
           (comment
-            (marker)
             (content)))))
     (bind
       (variable)
@@ -227,12 +226,10 @@ a = [e|
       (match
         (quote
           (comment
-            (marker)
             (content))
           (quoted_expression
             (variable))
           (comment
-            (marker)
             (content)))))))
 
 ================================================================================
@@ -250,7 +247,6 @@ a = [t|-- a|]
       (match
         (quote
           (comment
-            (marker)
             (content))
           (MISSING "|]"))))))
 
@@ -597,7 +593,6 @@ a = a $⟦a|]
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind

@@ -669,7 +669,6 @@ a :: a a '++ a => a
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (signature
@@ -803,7 +802,6 @@ a :: A -- a
       (context
         (name)
         (comment
-          (marker)
           (content))
         (name)))))
 
@@ -887,7 +885,6 @@ instance (A' (A)) => A
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (instance
@@ -911,7 +908,6 @@ a :: (a' 'a')'a' => A
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (signature
@@ -941,7 +937,6 @@ class A where
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (class
@@ -968,7 +963,6 @@ data A = A {a :: a
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (data_type

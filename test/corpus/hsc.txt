@@ -516,12 +516,10 @@ pattern AcceptConn = SockOpt (-1) (-1)
 
 (haskell
   (comment
-    (marker)
     (content))
   (cpp)
   (cpp)
   (haddock
-    (marker)
     (content))
   (declarations
     (pattern_synonym

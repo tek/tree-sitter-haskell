@@ -210,7 +210,6 @@ a = a
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind
@@ -273,7 +272,6 @@ allThePrimOps =
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (signature
@@ -359,11 +357,9 @@ cpp: precedence over comments
 
 (haskell
   (comment
-    (marker)
     (content))
   (cpp)
   (comment
-    (marker)
     (content)))
 
 ================================================================================
@@ -565,7 +561,6 @@ a = a
         (apply
           (variable)
           (comment
-            (marker)
             (content))
           (label))))))
 
@@ -640,7 +635,6 @@ cpp: newline continuation
   (cpp)
   (cpp)
   (comment
-    (marker)
     (content))
   (cpp)
   (cpp))

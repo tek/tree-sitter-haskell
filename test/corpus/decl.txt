@@ -287,7 +287,6 @@ a = a
       (match
         (variable)))
     (haddock
-      (marker)
       (content))
     (bind
       (variable)
@@ -296,7 +295,6 @@ a = a
           (exp
             (variable)))))
     (haddock
-      (marker)
       (content))
     (bind
       (variable)

@@ -1003,7 +1003,6 @@ a = b where -1 = a
       (match
         (variable))
       (comment
-        (marker)
         (content))
       (local_binds
         (bind
@@ -1015,7 +1014,6 @@ a = b where -1 = a
       (match
         (variable))
       (comment
-        (marker)
         (content))
       (local_binds
         (bind
@@ -1027,7 +1025,6 @@ a = b where -1 = a
       (match
         (variable))
       (comment
-        (marker)
         (content))
       (local_binds
         (bind
@@ -1039,7 +1036,6 @@ a = b where -1 = a
       (match
         (variable))
       (comment
-        (marker)
         (content))
       (local_binds
         (bind
@@ -1081,20 +1077,17 @@ c = d
       (match
         (variable)))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
       (match
         (variable)))
-    (comment
-      (marker))
+    (comment)
     (bind
       (variable)
       (match
         (variable)))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -1191,7 +1184,6 @@ layout: comment in column 0 before first decl in column 2
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind
@@ -1234,7 +1226,6 @@ instance A
     (module
       (module_id)))
   (comment
-    (marker)
     (content))
   (cpp)
   (declarations
@@ -1256,7 +1247,6 @@ instance A
 
 (haskell
   (comment
-    (marker)
     (content))
   (cpp)
   (declarations
@@ -1265,7 +1255,6 @@ instance A
     (instance
       (name))
     (comment
-      (marker)
       (content))))
 
 ================================================================================
@@ -1681,7 +1670,6 @@ a = do
             (exp
               (variable))
             (comment
-              (marker)
               (content)))
           (operator)
           (variable))))
@@ -1700,7 +1688,6 @@ a = do
           (operator)
           (variable))))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -2314,7 +2301,6 @@ a = a
 
 (haskell
   (comment
-    (marker)
     (content))
   (header
     (module
@@ -2378,7 +2364,6 @@ elsex = a
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind
@@ -2523,7 +2508,6 @@ a = a
 
 (haskell
   (comment
-    (marker)
     (content))
   (header
     (module
@@ -3067,7 +3051,6 @@ a = do
       (match
         (do
           (comment
-            (marker)
             (content))
           (bind
             (variable)
@@ -3128,7 +3111,6 @@ a = case a of
         (case
           (variable)
           (comment
-            (marker)
             (content))
           (alternatives))))))
 
@@ -3147,7 +3129,6 @@ a = if
 
 (haskell
   (comment
-    (marker)
     (content))
   (declarations
     (bind
@@ -3155,7 +3136,6 @@ a = if
       (match
         (multi_way_if
           (comment
-            (marker)
             (content))
           (match
             (guards
@@ -3177,7 +3157,6 @@ a -}
       (match
         (variable))))
   (comment
-    (marker)
     (content)))
 
 ================================================================================
@@ -3209,7 +3188,6 @@ a = case a of
               (match
                 (variable)))
             (comment
-              (marker)
               (content))
             (alternative
               (variable)
@@ -3284,13 +3262,11 @@ a = a
       (variable)
       (variable))
     (comment
-      (marker)
       (content))
     (signature
       (variable)
       (variable))
     (comment
-      (marker)
       (content))
     (bind
       (variable)
@@ -3335,7 +3311,6 @@ x = let
                 (literal
                   (integer))))
             (comment
-              (marker)
               (content))
             (bind
               (variable)
@@ -3343,7 +3318,6 @@ x = let
                 (literal
                   (integer))))
             (comment
-              (marker)
               (content))
             (bind
               (variable)
@@ -3447,7 +3421,6 @@ a = a
             (apply
               (variable)
               (comment
-                (marker)
                 (content))
               (variable))))))))
 
