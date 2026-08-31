@@ -2166,6 +2166,10 @@ a = #type
 a = #3
 a = #''notLifted
 a = #'
+a = #"labels can be quoted"
+a = #"\""
+a = #"continued\
+     \line"
 
 --------------------------------------------------------------------------------
 
@@ -2186,6 +2190,18 @@ a = #'
           (parens
             (variable))
           (label))))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
     (bind
       (variable)
       (match

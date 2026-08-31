@@ -2,23 +2,14 @@ const {
   parens,
   brackets,
   unboxed,
+  string_char,
+  multiline_string_char,
 } = require('./util.js')
 
 const decimal = /[0-9][0-9_]*/
 const exponent = /[eE][+-]?[0-9_]+/
 const hex_exponent = /[pP][+-]?[0-9a-fA-F_]+/
 const magic_hash = rule => token(seq(rule, optional(token.immediate(/##?/))))
-
-// A backslash followed by a ^ is a special sort of control character that is always followed by another character.
-// Otherwise, any character is permitted after a backslash.
-const escaped = /\\(\^)?./
-
-// Both single- and multiline strings allow splitting across line breaks with leading whitespace removed by inserting
-// two backslashes – as the last character of the first line and the first non-whitespace character on the next line:
-// s = "one \
-//        \line"
-// This will result in `"one line"`.
-const string_gap = /\\\n\s*\\/
 
 module.exports = {
 
@@ -48,23 +39,12 @@ module.exports = {
     choice(
       seq(
         '"',
-        repeat(choice(
-          /[^\\"\n]/, // Any character that's neither backslash, double quote nor newline needs no special consideration.
-          escaped,
-          string_gap,
-        )),
+        repeat(string_char),
         '"',
       ),
       seq(
         '"""',
-        repeat(choice(
-          /[^\\"]/, // Any character that's neither backslash nor double quote needs no special consideration.
-          escaped,
-          string_gap,
-          // In multiline strings, up to two consecutive double quotes are permitted without escaping.
-          /"[^"]/,
-          /""[^"]/,
-        )),
+        repeat(multiline_string_char),
         '"""'
       ),
     ),
