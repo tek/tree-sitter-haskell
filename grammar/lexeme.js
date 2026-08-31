@@ -12,7 +12,9 @@ module.exports = {
 
   name: _ => token(seq(conid_start_char, id_char, /#*/)),
 
-  label: _ => token(seq('#', varid_start_char, id_char)),
+  label: _ => token(
+    /#[\pL\p{Mn}\pN_']+/,
+  ),
 
   _carrow: _ => choice('=>', '⇒'),
   _arrow: _ => choice('->', '→'),

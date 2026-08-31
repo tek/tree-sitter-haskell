@@ -2156,6 +2156,16 @@ exp: label
 a = a #a a
 a = (a)#a
 a = #øøø
+a = #A
+a = #_A
+a = #안녕하세요
+a = #2_3
+a = #1a1a
+a = #do
+a = #type
+a = #3
+a = #''notLifted
+a = #'
 
 --------------------------------------------------------------------------------
 
@@ -2176,6 +2186,46 @@ a = #øøø
           (parens
             (variable))
           (label))))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
+    (bind
+      (variable)
+      (match
+        (label)))
     (bind
       (variable)
       (match
