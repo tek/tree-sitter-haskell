@@ -8,6 +8,32 @@ const varid_start_char = /[_\p{Ll}\p{Lo}]/
 
 const conid_start_char = /[\p{Lu}\p{Lt}]/
 
+// A backslash followed by a ^ is a special sort of control character that is always followed by another character.
+// Otherwise, any character is permitted after a backslash.
+const escaped = /\\(\^)?./
+
+// Both single- and multiline strings allow splitting across line breaks with leading whitespace removed by inserting
+// two backslashes – as the last character of the first line and the first non-whitespace character on the next line:
+// s = "one \
+//        \line"
+// This will result in `"one line"`.
+const string_gap = /\\\n\s*\\/
+
+const string_char = choice(
+  /[^\\"\n]/, // Any character that's neither backslash, double quote nor newline needs no special consideration.
+  escaped,
+  string_gap,
+)
+
+const multiline_string_char = choice(
+  /[^\\"]/, // Any character that's neither backslash nor double quote needs no special consideration.
+  escaped,
+  string_gap,
+  // In multiline strings, up to two consecutive double quotes are permitted without escaping.
+  /"[^"]/,
+  /""[^"]/,
+)
+
 // ------------------------------------------------------------------------
 // structure
 // ------------------------------------------------------------------------
@@ -172,4 +198,6 @@ module.exports = {
   id_char,
   varid_start_char,
   conid_start_char,
+  string_char,
+  multiline_string_char,
 }
