@@ -258,7 +258,7 @@ typedef struct {
   const char *marked_by;
 } Debug;
 
-Debug debug_new(TSLexer *l) {
+static Debug debug_new(TSLexer *l) {
   return (Debug) {
     .marked = -1,
     .marked_line = 0,
@@ -586,8 +586,6 @@ typedef Array(int32_t) Lookahead;
  * Although 'Lookahead' is always reset when starting a new run, storing it in the state avoids having to allocate and
  * free the array repeatedly.
  * Instead we just reset the `len` attribute to 0 and reuse the previous memory.
- *
- * REVIEW: Can tree-sitter run the scanner concurrently on multiple nodes in the same file in some situations?
  */
 typedef struct {
   Array(Context) contexts;
@@ -1232,7 +1230,7 @@ static void debug_contexts(Env *env) {
   }
 }
 
-void debug_newline(Env *env) {
+static void debug_newline(Env *env) {
   switch (env->state->newline.state) {
     case NInactive:
       dbg("no");
@@ -1285,17 +1283,17 @@ static bool debug_init(Env *env) {
   return false;
 }
 
-void sgr(const char *restrict code) {
+static void sgr(const char *restrict code) {
   dbg("\x1b[%sm", code);
 }
 
-void color(unsigned c) {
+static void color(unsigned c) {
   char code[3];
   sprintf(code, "3%d", c);
   sgr(code);
 }
 
-void palette() {
+static void palette() {
   color(4);
   dbg("before");
   color(2);
@@ -1331,7 +1329,7 @@ static void dump_parse_metadata(Env *env) {
  * - `fwprintf` counts wide characters, but can't be interleaved with `fprintf`, so we'd have to use that function, and
  *   therefore wide literals, everywhere, which is tedious
  */
-void debug_parse(Env *env) {
+static void debug_parse(Env *env) {
   Debug *debug = &env->debug;
   ParseLines *buffer = &env->state->parse;
   uint32_t lines = buffer->size;
@@ -1407,7 +1405,7 @@ static void deserialize_parse_lines(const char *cursor, ParseLines *parse, uint3
   parse->size = len;
 }
 
-void debug_finish(Env *env, Symbol result) {
+static void debug_finish(Env *env, Symbol result) {
   dbg("result: ");
   if (result) dbg("%s, ", sym_names[result]);
   else dbg("<skipped>, ");
