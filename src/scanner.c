@@ -138,8 +138,8 @@ typedef enum {
   ARROW,
   BAR,
   DERIVING,
-  COMMENT,
-  HADDOCK,
+  START_COMMENT,
+  COMMENT_CONTENT,
   CPP,
   PRAGMA,
   QQ_START,
@@ -196,8 +196,8 @@ static const char *sym_names[] = {
   "arrow",
   "bar",
   "deriving",
-  "comment",
-  "haddock",
+  "start_comment",
+  "comment_content",
   "cpp",
   "pragma",
   "qq_start",
@@ -349,8 +349,9 @@ typedef enum {
   LTexpCloser,
   LQuoteClose,
   LPragma,
-  LBlockComment,
   LLineComment,
+  LBlockComment,
+  LBlockCommentClose,
   LBraceClose,
   LBraceOpen,
   LBracketOpen,
@@ -393,8 +394,9 @@ static const char *token_names[] = {
   "texp-closer",
   "quote-close",
   "pragma",
-  "block-comment",
   "line-comment",
+  "block-comment",
+  "block-comment-close",
   "brace-close",
   "brace-open",
   "bracket-open",
@@ -580,6 +582,12 @@ typedef struct {
  */
 typedef Array(int32_t) Lookahead;
 
+typedef struct {
+  bool active;
+  bool block;
+  bool haddock;
+} Comment;
+
 /**
  * The state that is persisted across scanner runs.
  *
@@ -591,6 +599,7 @@ typedef struct {
   Array(Context) contexts;
   Newline newline;
   Lookahead lookahead;
+  Comment comment;
   uint32_t offset;
 #if DEBUG
   ParseLines parse;
@@ -1252,6 +1261,18 @@ static void debug_newline(Env *env) {
   if (env->state->newline.unsafe) dbg(" [unsafe]");
 }
 
+static void debug_comment(Env *env) {
+  Comment s = env->state->comment;
+  if (!s.active) dbg("in");
+  dbg("active");
+  if (s.active) {
+    dbg(" ");
+    if (s.block) dbg("block");
+    else dbg("inline");
+    if (s.haddock) dbg(" haddock");
+  };
+}
+
 /**
  * Produce a comma-separated string of valid symbols.
  */
@@ -1292,6 +1313,8 @@ static bool debug_init(Env *env) {
   debug_contexts(env);
   dbg("\n  newline = ");
   debug_newline(env);
+  dbg("\n  comment = ");
+  debug_comment(env);
   dbg("\n");
   return false;
 }
@@ -2438,7 +2461,8 @@ static Lexed lex_extras(Env *env, bool bol) {
       if (bol) return lex_cpp(env);
       break;
     case '-':
-      if (line_comment_herald(env)) return LLineComment;
+      if (char1(env, '}')) return LBlockCommentClose;
+      else if (line_comment_herald(env)) return LLineComment;
       break;
     default:
       break;
@@ -2536,53 +2560,59 @@ static Symbol cpp_line(Env *env) {
 // Comments
 // --------------------------------------------------------------------------------------------------------
 
-static Symbol comment_type_char(Env *env, bool line_comment, uint32_t i) {
+static bool haddock_herald(Env *env) {
+  return char0(env, '|') || char0(env, '^');
+}
+
+static Symbol comment_type_haddock(Env *env) {
+  bool seen = false;
+  reset_lookahead(env);
   while (not_eof(env)) {
-    int32_t c = peek(env, i++);
-    if (c == '|' || c == '^') return HADDOCK;
-    else if (!is_space_char_or_tab(c)) break;
+    if (haddock_herald(env)) {
+      if (seen) return false;
+      seen = true;
+    }
+    else if (!is_space_char_or_tab(peek0(env))) break;
+    reset_lookahead_to(env, 1);
   }
-  return COMMENT;
+  return seen;
 }
 
-/**
- * Distinguish between haddocks and plain comments by matching on the first non-whitespace character.
- */
-static Symbol comment_type(Env *env, bool line_comment) {
-  uint32_t i = 2;
-  while (line_comment && peek(env, i) == '-') i++;
-  return comment_type_char(env, line_comment, i);
+static Symbol start_comment(Env *env, bool block) {
+  env->state->comment.active = true;
+  env->state->comment.block = block;
+  env->state->comment.haddock = comment_type_haddock(env);
+  return finish(START_COMMENT, "start_comment");
 }
 
-static bool continue_inline_comment(Env *env, Symbol current) {
+static bool continue_inline_comment(Env *env) {
   S_ADVANCE;
   reset_lookahead(env);
   take_space_from(env, 0);
   reset_lookahead(env);
   if (line_comment_herald(env)) {
     reset_lookahead(env);
-    return current == HADDOCK || comment_type_char(env, true, 0) == COMMENT;
+    return env->state->comment.haddock || !comment_type_haddock(env);
   }
   else return false;
 }
 
-/**
- * Inline comments extend over all consecutive lines that start with comments.
- * Could be improved by requiring equal indent.
- */
-static Symbol inline_comment(Env *env) {
-  Symbol sym = comment_type(env, true);
+static void comment_body_inline(Env *env) {
   do {
     take_line(env);
     MARK("inline comment");
-  } while (continue_inline_comment(env, sym));
-  return sym;
+  } while (continue_inline_comment(env));
 }
 
-static uint32_t consume_block_comment(Env *env, uint32_t col) {
+// When `mark` is `true`, we mark before the closing `-}` to allow the grammar to process the rest.
+// In newline mode, we don't want to mark at all, so it is optional.
+static uint32_t consume_block_comment(Env *env, uint32_t col, bool mark) {
   uint32_t level = 0;
   for (;;) {
-    if (is_eof(env)) return col;
+    if (is_eof(env)) {
+      if (mark) MARK("consume_block_comment");
+      return col;
+    }
     col++;
     switch (PEEK) {
       case '{':
@@ -2594,6 +2624,7 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
         }
         break;
       case '-':
+        if (mark) MARK("consume_block_comment");
         S_ADVANCE;
         if (PEEK == '}') {
           S_ADVANCE;
@@ -2617,14 +2648,15 @@ static uint32_t consume_block_comment(Env *env, uint32_t col) {
   }
 }
 
-/**
- * Since {- -} comments can be nested arbitrarily, this has to keep track of how many have been opened, so that the
- * outermost comment isn't closed prematurely.
- */
-static Symbol block_comment(Env *env) {
-  Symbol sym = comment_type(env, false);
-  consume_block_comment(env, env->state->lookahead.size);
-  return finish_marked(env, sym, "block_comment");
+static Symbol comment_active(Env *env) {
+  if (valid(env, COMMENT_CONTENT)) {
+    skip_space(env);
+    if (comment_type_haddock(env)) return FAIL;
+    if (env->state->comment.block) consume_block_comment(env, env->state->lookahead.size, true);
+    else comment_body_inline(env);
+    env->state->comment.active = false;
+  }
+  return finish(COMMENT_CONTENT, "comment_active");
 }
 
 // --------------------------------------------------------------------------------------------------------
@@ -2750,6 +2782,7 @@ static Symbol resolve_semicolon(Env *env, Lexed next) {
     switch(next) {
       case LLineComment:
       case LBlockComment:
+      case LBlockCommentClose:
       case LPragma:
       case LSemi:
         break;
@@ -2816,9 +2849,11 @@ static Symbol process_token_safe(Env *env, Lexed next, bool allow_pragma) {
     case LPragma:
       return allow_pragma ? pragma(env) : false;
     case LBlockComment:
-      return block_comment(env);
+      return start_comment(env, true);
     case LLineComment:
-      return inline_comment(env);
+      return start_comment(env, false);
+    case LBlockCommentClose:
+      return finish(COMMENT_CONTENT, "block comment close");
     case LCppElse:
       return cpp_else(env, true);
     case LCpp:
@@ -3044,7 +3079,7 @@ static void newline_lookahead(Env *env, Newline *newline) {
             newline->no_semi = true;
             return;
           case LBlockComment:
-            newline->indent = consume_block_comment(env, newline->indent + 2);
+            newline->indent = consume_block_comment(env, newline->indent + 2, false);
             break;
           case LLineComment:
             newline->indent = 0;
@@ -3459,6 +3494,7 @@ static Symbol pre_ws_commands(Env *env) {
 
 static Symbol scan_main(Env *env) {
   MARK("main");
+  if (env->state->comment.active) return comment_active(env);
   SEQ(pre_ws_commands(env));
   bool whitespace = skip_space(env);
   if (is_newline(PEEK)) return newline_start(env);
@@ -3490,6 +3526,7 @@ static bool process_result(Env *env, Symbol result) {
           env->state->contexts.capacity, env->state->lookahead.capacity, env->state->parse.capacity);}
     }
   }
+  else if (result == COMMENT_CONTENT && !valid(env, COMMENT_CONTENT)) result = FAIL;
   return set_result_symbol(env, result);
 }
 
@@ -3511,6 +3548,7 @@ static bool scan(Env *env) {
 typedef struct {
   unsigned contexts;
   Newline newline;
+  Comment comment;
 #if DEBUG
   unsigned parse;
 #endif
@@ -3540,7 +3578,7 @@ bool tree_sitter_haskell_external_scanner_scan(void *payload, TSLexer *lexer, co
 
 unsigned tree_sitter_haskell_external_scanner_serialize(void *payload, char *buffer) {
   State *state = (State *) payload;
-  Persist persist = {.contexts = state->contexts.size, .newline = state->newline};
+  Persist persist = {.contexts = state->contexts.size, .newline = state->newline, .comment = state->comment};
 #if DEBUG
   persist.parse = state->parse.size;
 #endif
@@ -3568,6 +3606,7 @@ void tree_sitter_haskell_external_scanner_deserialize(void *payload, const char 
   }
   unsigned contexts_size = persist->contexts * sizeof(Context);
   state->newline = persist->newline;
+  state->comment = persist->comment;
   array_reserve(&state->contexts, persist->contexts);
   state->contexts.size = persist->contexts;
   if (length > 0)

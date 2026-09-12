@@ -402,12 +402,12 @@ a = (a `A ` )
 
 a = (a ` A.A`)
 
-a = (a `  
-    a  
+a = (a `
+    a
     `   )
 
-a = (a `  
-    Aaaa.Aaaa.A.a  
+a = (a `
+    Aaaa.Aaaa.A.a
     `   )
 
 --------------------------------------------------------------------------------
@@ -2144,10 +2144,16 @@ a = (# a |#)
 --------------------------------------------------------------------------------
 
 (haskell
-  (ERROR
-    (variable)
-    (variable)
-    (operator)))
+  (declarations
+    (bind
+      (variable)
+      (match
+        (right_section
+          (operator)
+          (infix
+            (variable)
+            (operator)
+            (MISSING variable)))))))
 
 ================================================================================
 exp: label
@@ -2809,7 +2815,8 @@ a = if do a then# then a else a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)

@@ -209,7 +209,8 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
@@ -270,7 +271,8 @@ allThePrimOps =
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (signature
       (variable)
@@ -354,9 +356,11 @@ cpp: precedence over comments
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (cpp)
-  (comment))
+  (comment
+    (content)))
 
 ================================================================================
 cpp: label after newline
@@ -409,7 +413,7 @@ a = do
   a do
     a <- a
 
-#      
+#
 
     a
   a
@@ -556,7 +560,8 @@ a = a
       (match
         (apply
           (variable)
-          (comment)
+          (comment
+            (content))
           (label))))))
 
 ================================================================================
@@ -620,7 +625,7 @@ cpp: newline continuation
 #endif
 
 -- this one has trailing whitespace, which is valid
-#if \ 	  
+#if \
 1
 #endif
 
@@ -629,6 +634,7 @@ cpp: newline continuation
 (haskell
   (cpp)
   (cpp)
-  (comment)
+  (comment
+    (content))
   (cpp)
   (cpp))
