@@ -68,7 +68,7 @@ mkA x = A x
 mkAQualified x = SomeModule.A x
              -- <- variable.parameter
 mkAQualified x = SomeModule.A x
-                              -- <- variable
+                              -- <- variable.parameter
 
 class Ord a => PartialOrd a
 -- <- keyword
@@ -305,7 +305,7 @@ quasiQuotedString2 = [SomeModule.qq|Some string|]
 qualifiedComposition = SomeModule.f . SomeModule.g
                                   -- <- function
 qualifiedComposition = SomeModule.f . SomeModule.g
-                                                 -- <- function
+                                                 -- <- variable
 takeMVarOrThrow = evaluate <=< takeMVar
                    -- <- function
 takeMVarOrThrow = evaluate <=< takeMVar
