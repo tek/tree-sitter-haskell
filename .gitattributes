@@ -5,3 +5,7 @@
 /src/node-types.json -diff
 /hsc/src/grammar.json -diff
 /hsc/src/node-types.json -diff
+
+# Zig bindings
+build.zig linguist-generated
+build.zig.zon linguist-generated

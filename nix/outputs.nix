@@ -425,10 +425,7 @@
 
   tests-gen = script "tree-sitter-haskell-tests-gen" ''
   tree-sitter generate --build
-  ${unit-tests}
-  test/parse-libs native
-  test/parse-libs wasm
-  cargo test
+  ${tests}
   '';
 
 in {

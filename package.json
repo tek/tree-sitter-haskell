@@ -2,6 +2,7 @@
   "name": "tree-sitter-hs",
   "version": "1.0.0",
   "description": "Haskell grammar for tree-sitter",
+  "type": "commonjs",
   "repository": "github:tek/tree-sitter-haskell",
   "main": "bindings/node",
   "types": "bindings/node",
