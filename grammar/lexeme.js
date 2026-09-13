@@ -56,4 +56,27 @@ module.exports = {
 
   _bar: $ => seq(optional($._phantom_bar), '|'),
 
+  // The scanner emits a hidden start token for the opening delimiter – `--`/`{-` for `comment`, and
+  // the same extended through the `|`/`^` herald for `haddock` – then parses the rest as the body.
+  // The herald can't be a grammar literal (`comment`/`haddock` are `extras`, and the external
+  // operator tokens valid for a following expression preempt any internal literal here), so the
+  // scanner keeps classifying it; the start token is hidden, leaving only the body node.
+  //
+  // The `_only` start tokens are for delimiters with no body (a bare `--`, `-- |`, ...); they let
+  // the body stay out of the tree entirely rather than appear as an empty node, which an
+  // `optional` body couldn't express (an extra rule needs an unambiguous ending).
+  //
+  // The body node is named `content`, deliberately *without* the substring "comment": the upstream
+  // `tree-sitter test` highlighting-assertion parser scans nodes whose `kind().contains("comment")`
+  // for `-- <- capture` assertions, so such a child would be misparsed as a spurious assertion.
+  comment: $ => choice(
+    seq($._comment_start, field('content', alias($._comment_body, $.content))),
+    $._comment_start_only,
+  ),
+
+  haddock: $ => choice(
+    seq($._haddock_start, field('content', alias($._comment_body, $.content))),
+    $._haddock_start_only,
+  ),
+
 }

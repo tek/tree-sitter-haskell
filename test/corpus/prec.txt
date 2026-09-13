@@ -498,7 +498,8 @@ a = [A..a]
           (variable)
           (variable)
           (variable))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -590,7 +591,8 @@ a = (a . a)
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
@@ -1286,7 +1288,8 @@ a = a# || a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (signature
       (prefix_id
@@ -1303,7 +1306,8 @@ a = a# || a
         (right_section
           (operator)
           (variable))))
-    (comment)
+    (comment
+      (content))
     (signature
       (prefix_id
         (operator))
@@ -1319,7 +1323,8 @@ a = a# || a
         (left_section
           (variable)
           (operator))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1327,7 +1332,8 @@ a = a# || a
           (boolean
             (variable)))
         (variable)))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1592,7 +1598,8 @@ a = a a A.+++ a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)

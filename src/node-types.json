@@ -1321,6 +1321,23 @@
     }
   },
   {
+    "type": "comment",
+    "named": true,
+    "extra": true,
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "content",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "conditional",
     "named": true,
     "fields": {
@@ -3101,6 +3118,23 @@
         "types": [
           {
             "type": "guard",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "haddock",
+    "named": true,
+    "extra": true,
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "content",
             "named": true
           }
         ]
@@ -6126,12 +6160,11 @@
     "named": false
   },
   {
-    "type": "comment",
-    "named": true,
-    "extra": true
+    "type": "constructor",
+    "named": true
   },
   {
-    "type": "constructor",
+    "type": "content",
     "named": true
   },
   {
@@ -6190,11 +6223,6 @@
   {
     "type": "group",
     "named": false
-  },
-  {
-    "type": "haddock",
-    "named": true,
-    "extra": true
   },
   {
     "type": "hiding",

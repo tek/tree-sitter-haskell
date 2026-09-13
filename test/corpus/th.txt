@@ -212,7 +212,8 @@ a = [e|
       (variable)
       (match
         (quote
-          (comment))))
+          (comment
+            (content)))))
     (bind
       (variable)
       (match
@@ -224,10 +225,12 @@ a = [e|
       (variable)
       (match
         (quote
-          (comment)
+          (comment
+            (content))
           (quoted_expression
             (variable))
-          (comment))))))
+          (comment
+            (content)))))))
 
 ================================================================================
 th: error: comment in expression quote body ranging over closing bracket
@@ -243,7 +246,8 @@ a = [t|-- a|]
       (variable)
       (match
         (quote
-          (comment)
+          (comment
+            (content))
           (MISSING "|]"))))))
 
 ================================================================================
@@ -588,7 +592,8 @@ a = a $⟦a|]
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)

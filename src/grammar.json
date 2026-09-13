@@ -12869,6 +12869,68 @@
           "value": "|"
         }
       ]
+    },
+    "comment": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_comment_start"
+            },
+            {
+              "type": "FIELD",
+              "name": "content",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_comment_body"
+                },
+                "named": true,
+                "value": "content"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start_only"
+        }
+      ]
+    },
+    "haddock": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_haddock_start"
+            },
+            {
+              "type": "FIELD",
+              "name": "content",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_comment_body"
+                },
+                "named": true,
+                "value": "content"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_haddock_start_only"
+        }
+      ]
     }
   },
   "extras": [
@@ -13159,11 +13221,23 @@
     },
     {
       "type": "SYMBOL",
-      "name": "comment"
+      "name": "_comment_start"
     },
     {
       "type": "SYMBOL",
-      "name": "haddock"
+      "name": "_comment_start_only"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_haddock_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_haddock_start_only"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_comment_body"
     },
     {
       "type": "SYMBOL",

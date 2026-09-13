@@ -39,27 +39,24 @@ a = case a of
 
 --------------------------------------------------------------------------------
 
-(haskell
-  (ERROR
-    (bind
-      (variable)
-      (match
-        (case
-          (variable)
-          (alternatives
-            (alternative
-              (variable)
-              (match
-                (variable))))))
-      (local_binds
-        (bind
-          (variable)
-          (match
-            (variable)))))
-    (variable))
-  (declarations
-    (top_splice
-      (variable))))
+(ERROR
+  (bind
+    (variable)
+    (match
+      (case
+        (variable)
+        (alternatives
+          (alternative
+            (variable)
+            (match
+              (variable))))))
+    (local_binds
+      (bind
+        (variable)
+        (match
+          (variable)))))
+  (variable)
+  (variable))
 
 ================================================================================
 layout: where on deeper level than case alt with following alt
@@ -1005,7 +1002,8 @@ a = b where -1 = a
       (variable)
       (match
         (variable))
-      (comment)
+      (comment
+        (content))
       (local_binds
         (bind
           (variable)
@@ -1015,7 +1013,8 @@ a = b where -1 = a
       (variable)
       (match
         (variable))
-      (comment)
+      (comment
+        (content))
       (local_binds
         (bind
           (variable)
@@ -1025,7 +1024,8 @@ a = b where -1 = a
       (variable)
       (match
         (variable))
-      (comment)
+      (comment
+        (content))
       (local_binds
         (bind
           (variable)
@@ -1035,7 +1035,8 @@ a = b where -1 = a
       (variable)
       (match
         (variable))
-      (comment)
+      (comment
+        (content))
       (local_binds
         (bind
           (variable)
@@ -1075,7 +1076,8 @@ c = d
       (variable)
       (match
         (variable)))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1085,7 +1087,8 @@ c = d
       (variable)
       (match
         (variable)))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1180,7 +1183,8 @@ layout: comment in column 0 before first decl in column 2
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
@@ -1221,7 +1225,8 @@ instance A
   (header
     (module
       (module_id)))
-  (comment)
+  (comment
+    (content))
   (cpp)
   (declarations
     (data_type
@@ -1241,14 +1246,16 @@ instance A
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (cpp)
   (declarations
     (data_type
       (name))
     (instance
       (name))
-    (comment)))
+    (comment
+      (content))))
 
 ================================================================================
 layout: end two layouts at the same position
@@ -1662,7 +1669,8 @@ a = do
           (do
             (exp
               (variable))
-            (comment))
+            (comment
+              (content)))
           (operator)
           (variable))))
     (bind
@@ -1679,7 +1687,8 @@ a = do
                     (variable))))))
           (operator)
           (variable))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -2291,7 +2300,8 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (header
     (module
       (module_id)))
@@ -2353,7 +2363,8 @@ elsex = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
@@ -2496,7 +2507,8 @@ a = a
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (header
     (module
       (module_id)))
@@ -3038,7 +3050,8 @@ a = do
       (variable)
       (match
         (do
-          (comment)
+          (comment
+            (content))
           (bind
             (variable)
             (variable)))))))
@@ -3097,7 +3110,8 @@ a = case a of
       (match
         (case
           (variable)
-          (comment)
+          (comment
+            (content))
           (alternatives))))))
 
 ================================================================================
@@ -3114,13 +3128,15 @@ a = if
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
       (match
         (multi_way_if
-          (comment)
+          (comment
+            (content))
           (match
             (guards
               (boolean
@@ -3140,7 +3156,8 @@ a -}
       (variable)
       (match
         (variable))))
-  (comment))
+  (comment
+    (content)))
 
 ================================================================================
 layout: unicode whitespace
@@ -3170,7 +3187,8 @@ a = case a of
               (variable)
               (match
                 (variable)))
-            (comment)
+            (comment
+              (content))
             (alternative
               (variable)
               (match
@@ -3243,11 +3261,13 @@ a = a
     (signature
       (variable)
       (variable))
-    (comment)
+    (comment
+      (content))
     (signature
       (variable)
       (variable))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -3290,13 +3310,15 @@ x = let
               (match
                 (literal
                   (integer))))
-            (comment)
+            (comment
+              (content))
             (bind
               (variable)
               (match
                 (literal
                   (integer))))
-            (comment)
+            (comment
+              (content))
             (bind
               (variable)
               (match
@@ -3398,7 +3420,8 @@ a = a
           (match
             (apply
               (variable)
-              (comment)
+              (comment
+                (content))
               (variable))))))))
 
 ================================================================================
