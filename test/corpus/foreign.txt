@@ -79,14 +79,14 @@ foreign import CALLCONV SAFE_ON_WIN "ioctlsocket"
         (string))
       (signature
         (variable)
-         (function
-           (name)
-           (function
-             (name)
-             (function
-               (apply
-                 (name)
-                 (name))
-               (apply
-                 (name)
-                 (name)))))))))
+        (function
+          (name)
+          (function
+            (name)
+            (function
+              (apply
+                (name)
+                (name))
+              (apply
+                (name)
+                (name)))))))))

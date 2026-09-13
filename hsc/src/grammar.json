@@ -13118,6 +13118,148 @@
         }
       ]
     },
+    "comment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_cond_comment"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_comment_block"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_comment_inline"
+            }
+          ]
+        }
+      ]
+    },
+    "haddock": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_cond_comment"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_comment_block_haddock"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_comment_inline_haddock"
+            }
+          ]
+        }
+      ]
+    },
+    "_comment_block_haddock": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start_block"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_bar"
+            },
+            {
+              "type": "STRING",
+              "value": "^"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "content"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_comment_end_block"
+        }
+      ]
+    },
+    "_comment_block": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start_block"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "content"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_comment_end_block"
+        }
+      ]
+    },
+    "_comment_start_block": {
+      "type": "STRING",
+      "value": "{-"
+    },
+    "_comment_end_block": {
+      "type": "STRING",
+      "value": "-}"
+    },
+    "_comment_inline_haddock": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start_inline"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_bar"
+            },
+            {
+              "type": "STRING",
+              "value": "^"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "content"
+        }
+      ]
+    },
+    "_comment_inline": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_comment_start_inline"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "content"
+        }
+      ]
+    },
+    "_comment_start_inline": {
+      "type": "PATTERN",
+      "value": "--+"
+    },
     "hsc": {
       "type": "CHOICE",
       "members": [
@@ -13564,11 +13706,11 @@
     },
     {
       "type": "SYMBOL",
-      "name": "comment"
+      "name": "_cond_comment"
     },
     {
       "type": "SYMBOL",
-      "name": "haddock"
+      "name": "content"
     },
     {
       "type": "SYMBOL",

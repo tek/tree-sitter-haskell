@@ -1,5 +1,5 @@
 ================================================================================
-varsym: error: |
+varsym: error: bar
 ================================================================================
 
 f = a | a
@@ -114,12 +114,12 @@ f = a =>> a
   (declarations
     (bind
       (variable)
-        (match
-          (apply
-            (variable)
-            (ERROR
-              (UNEXPECTED '>'))
-            (variable))))
+      (match
+        (apply
+          (variable)
+          (ERROR
+            (UNEXPECTED '>'))
+          (variable))))
     (bind
       (variable)
       (match
@@ -285,12 +285,14 @@ a = a ----- a
       (variable)
       (match
         (variable)))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
         (variable)))
-    (comment)))
+    (comment
+      (content))))
 
 ================================================================================
 varsym: operator with large number of dashes
@@ -309,7 +311,8 @@ a = a ------> a ----- %
           (variable)
           (operator)
           (variable))))
-    (comment)))
+    (comment
+      (content))))
 
 ================================================================================
 varsym: implicit parameter
@@ -350,7 +353,8 @@ a = a $[a]
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (bind
       (variable)
@@ -562,7 +566,8 @@ a = a A.$ a
       (match
         (prefix_id
           (operator))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1302,7 +1307,8 @@ a = a A.? a
       (match
         (prefix_id
           (operator))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match
@@ -1462,7 +1468,8 @@ type A = a - 1
           (variable)
           (operator)
           (variable))))
-    (comment)
+    (comment
+      (content))
     (bind
       (variable)
       (match

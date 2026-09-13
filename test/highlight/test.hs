@@ -1,5 +1,5 @@
 {- |
- NOTE: Because Haskell's `-- ^` comments are parsed as (haddock) and not (comment),
+ NOTE: Because Haskell's `-- ^` comments are parsed as (haddock) and not (comment (content)),
  we cannot use `-- ^` assertions.
 -}
 

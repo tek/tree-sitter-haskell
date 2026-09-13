@@ -527,7 +527,8 @@ type family A a a a a a where
 --------------------------------------------------------------------------------
 
 (haskell
-  (comment)
+  (comment
+    (content))
   (declarations
     (type_family
       (name)

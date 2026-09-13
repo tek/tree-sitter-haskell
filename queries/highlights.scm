@@ -30,7 +30,7 @@
 
 (string) @string
 
-(comment) @comment
+(comment (content)) @comment
 
 (haddock) @comment.documentation
 
@@ -494,4 +494,4 @@
 
 ; ----------------------------------------------------------------------------
 ; Spell checking
-(comment) @spell
+(comment (content)) @spell

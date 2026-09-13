@@ -97,11 +97,15 @@ module.exports = {
     $._phantom_bar,
     $._phantom_deriving,
 
-    // Detect and emit text nodes for comments and CPP.
+    // Comments are detected in the scanner, but parsing is delegated to the grammar as much as possible, in order to
+    // keep the braces and the Haddock herald separate from the body of the comment, which is contained in the
+    // standardized `content` node.
+    $._cond_comment,
+    $.content,
+
+    // Detect and emit text nodes for CPP and pragmas.
     // In particular, #else branches of CPP conditionals a fully contained in the resulting node, since their nonlinear
     // nature means they cannot be parsed.
-    $.comment,
-    $.haddock,
     $.cpp,
     $.pragma,
 
