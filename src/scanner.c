@@ -2791,7 +2791,7 @@ static Symbol semicolon(Env *env) {
  *
  * This is called by `newline_post` before marking, so the actions must not fail after advancing.
  */
-static Symbol process_token_safe(Env *env, Lexed next) {
+static Symbol process_token_safe(Env *env, Lexed next, bool allow_pragma) {
   switch (next) {
     case LWhere:
       return end_layout_where(env);
@@ -2806,7 +2806,7 @@ static Symbol process_token_safe(Env *env, Lexed next) {
       if (!valid(env, BAR)) return end_layout(env, "bar");
       break;
     case LPragma:
-      return pragma(env);
+      return allow_pragma ? pragma(env) : false;
     case LBlockComment:
       return block_comment(env);
     case LLineComment:
@@ -2922,7 +2922,7 @@ static Symbol process_token_interior(Env *env, Lexed next) {
     default:
       break;
   }
-  SEQ(process_token_safe(env, next));
+  SEQ(process_token_safe(env, next, true));
   return start_layout_interior(env, next);
 }
 
@@ -2957,7 +2957,7 @@ static Symbol newline_extras(Env *env, Space space) {
   bool bol = space == BOL || (space == NoSpace && newline_init(env));
   Lexed next = lex_extras(env, bol);
   dbg("newline extras token: %s\n", token_names[next]);
-  return process_token_safe(env, next);
+  return process_token_safe(env, next, true);
 }
 
 // Don't finish newline processing before pragmas – they are indicators of layout indent, but since they are extras,
@@ -2970,7 +2970,7 @@ static Symbol newline_process(Env *env) {
   uint32_t indent = env->state->newline.indent;
   Lexed end = env->state->newline.end;
   SEQ(end_layout_indent(env));
-  SEQ(process_token_safe(env, end));
+  SEQ(process_token_safe(env, end, false));
   Space space = skip_whitespace(env);
   MARK("newline_post");
   if (env->state->newline.unsafe) SEQ(newline_extras(env, space));
