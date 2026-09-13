@@ -1345,17 +1345,17 @@ static void debug_parse(Env *env) {
       uint32_t pos = 0;
 
       if (debug->start_line == lines - 1 - i) {
-        while (pos < debug->start_col) { dbg("%lc", buf[pos]); pos++; }
+        while (pos < debug->start_col && pos < line->size) { dbg("%lc", buf[pos]); pos++; }
         color(2);
       }
 
       if (debug->marked >= 0 && debug->marked_line == lines - 1 - i) {
-        while ((int) pos < debug->marked) { dbg("%lc", buf[pos]); pos++; }
+        while ((int) pos < debug->marked && pos < line->size) { dbg("%lc", buf[pos]); pos++; }
         color(3);
       }
 
       if (i == lines - 1) {
-        while (pos < debug->end_col) { dbg("%lc", buf[pos]); pos++; }
+        while (pos < debug->end_col && pos < line->size) { dbg("%lc", buf[pos]); pos++; }
         color(5);
       }
 
