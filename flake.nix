@@ -3,12 +3,14 @@
 
   inputs = {
     hix.url = "github:tek/hix";
-    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/d233902339c02a9c334e7e593de68855ad26c4cb";
+    hix.inputs.nixpkgs.url = "github:nixos/nixpkgs/02f5696b0e6097e589076d886b317b83ff0437d7";
     rust-overlay.url = "github:oxalica/rust-overlay";
     nix-filter.url = "github:numtide/nix-filter";
+    tree-sitter.url = "github:tree-sitter/tree-sitter/v0.27.0";
+    tree-sitter.inputs.nixpkgs.follows = "hix/nixpkgs";
   };
 
-  outputs = {self, hix, rust-overlay, nix-filter, ...}: hix.lib.pro ({config, lib, util, ...}: {
+  outputs = {self, hix, rust-overlay, nix-filter, tree-sitter, ...}: hix.lib.pro ({config, lib, util, ...}: {
 
     cabal = {
       license = "MIT";
@@ -54,7 +56,7 @@
     outputs = let
       inherit (config) pkgs;
 
-      outputs = import ./nix/outputs.nix { inherit config pkgs rust-overlay; filter = nix-filter.lib; };
+      outputs = import ./nix/outputs.nix { inherit config util pkgs rust-overlay tree-sitter; filter = nix-filter.lib; };
 
       hs = outputs.dialect-haskell;
       hsc = outputs.dialect-hsc;
@@ -75,7 +77,7 @@
         parser-hsc-wasm = hsc.parserWasm;
       };
 
-      apps = lib.genAttrs ["tests" "unit-tests" "ci"] (name: util.app outputs.${name}) // {
+      apps = lib.genAttrs ["tests" "unit-tests" "ci" "tests-gen"] (name: util.app outputs.${name}) // {
         gen-bitmaps = util.app outputs.gen-bitmaps;
         bench-all = util.app (outputs.bench "effects postgrest polysemy ivory haskell-language-server");
         bench-hls = util.app (outputs.bench "haskell-language-server");
