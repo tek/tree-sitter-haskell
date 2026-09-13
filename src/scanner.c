@@ -1270,19 +1270,6 @@ static void debug_valid(Env *env, const bool *syms) {
   }
 }
 
-static bool debug_init(Env *env) {
-  setlocale(LC_ALL, "C.UTF-8");
-  dbg("\n");
-  dbg("state:\n  syms = ");
-  debug_valid(env, env->symbols);
-  dbg("\n  contexts = ");
-  debug_contexts(env);
-  dbg("\n  newline = ");
-  debug_newline(env);
-  dbg("\n");
-  return false;
-}
-
 static void sgr(const char *restrict code) {
   dbg("\x1b[%sm", code);
 }
@@ -1291,6 +1278,22 @@ static void color(unsigned c) {
   char code[3];
   sprintf(code, "3%d", c);
   sgr(code);
+}
+
+static bool debug_init(Env *env) {
+  setlocale(LC_ALL, "C.UTF-8");
+  dbg("\n");
+  color(6);
+  dbg("> scanner start\n");
+  sgr("");
+  dbg("state:\n  syms = ");
+  debug_valid(env, env->symbols);
+  dbg("\n  contexts = ");
+  debug_contexts(env);
+  dbg("\n  newline = ");
+  debug_newline(env);
+  dbg("\n");
+  return false;
 }
 
 static void palette() {
@@ -1406,14 +1409,19 @@ static void deserialize_parse_lines(const char *cursor, ParseLines *parse, uint3
 }
 
 static void debug_finish(Env *env, Symbol result) {
-  dbg("result: ");
-  if (result) dbg("%s, ", sym_names[result]);
-  else dbg("<skipped>, ");
+  dbg("\n");
+  fill_parse_buffer(env);
+  debug_parse(env);
+  color(6);
+  dbg("\n> scanner result: ");
+  color(1);
+  if (result) dbg("%s", sym_names[result]);
+  else dbg("<skipped>");
+  sgr("");
+  dbg(", ");
   if (env->debug.marked == -1) dbg("%d", column(env));
   else dbg("%s@%d", env->debug.marked_by, env->debug.marked);
   dbg("\n\n");
-  fill_parse_buffer(env);
-  debug_parse(env);
   env->state->parse.size -= env->debug.marked_line;
 }
 
@@ -1511,7 +1519,7 @@ typedef enum {
  * Alternate between skipping space and newlines, and return which was seen last.
  * This does not use the lookahead buffer, but directly accesses the lexer.
  * Only to be used when it is certain that no whitespace has been copied to the buffer by previous steps, and that no
- * previous characters should be included in the range of non-zero-width symbol.
+ * previous characters should be included in the range of non-zero-width symbols.
  */
 static Space skip_whitespace(Env *env) {
   Space space = NoSpace;
