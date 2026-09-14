@@ -2446,7 +2446,9 @@ static Lexed lex_extras(Env *env, bool bol) {
   return LNothing;
 }
 
+#ifdef HSC_EXT
 static Lexed lex_hsc_hash(Env *env);
+#endif
 
 /**
  * The main lexing entry point, branching on the first character, then advancing as far as necessary to identify all
@@ -3435,7 +3437,9 @@ static Symbol interior(Env *env, bool whitespace) {
 // Initial actions
 // --------------------------------------------------------------------------------------------------------
 
+#ifdef HSC_EXT
 static Symbol hsc_args(Env *env, Symbol sym, bool directive_ends_with_newline);
+#endif
 
 /**
  * These are conditioned only on symbols and don't advance, except for `qq_body`, which cannot fail.
@@ -3520,7 +3524,7 @@ typedef struct {
  * This function allocates the persistent state of the parser that is passed into the other API functions.
  */
 void *tree_sitter_haskell_external_scanner_create() {
-  State *state = ts_calloc(sizeof(State), 1);
+  State *state = ts_calloc(1, sizeof(State));
   array_reserve(&state->contexts, 8);
   array_reserve(&state->lookahead, 8);
 #if DEBUG
