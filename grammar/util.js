@@ -157,6 +157,24 @@ const unboxed_sum_full = ($, rule) => unboxed($, sep2($._unboxed_bar, field('ele
 const optional_where = ($, rule) => optional(seq($._where, optional(rule)))
 
 // ------------------------------------------------------------------------
+// numbers
+// ------------------------------------------------------------------------
+
+const decimal = /[0-9][0-9_]*/
+
+const hex_exponent = /[pP][+-]?[0-9a-fA-F_]+/
+
+const binary_literal = /0[bB][01_]+/
+
+const octal_literal = /0[oO][0-7]+/
+
+const hex_literal = seq(
+  /0[xX][0-9a-fA-F_]+/,
+  optional(/\.[0-9a-fA-F_]+/),
+  optional(hex_exponent),
+)
+
+// ------------------------------------------------------------------------
 // misc
 // ------------------------------------------------------------------------
 
@@ -200,4 +218,8 @@ module.exports = {
   conid_start_char,
   string_char,
   multiline_string_char,
+  decimal,
+  binary_literal,
+  octal_literal,
+  hex_literal,
 }

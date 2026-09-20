@@ -2,10 +2,18 @@ const haskell = require("../grammar.js")
 const {
   id_char,
   varid_start_char,
+  decimal,
+  binary_literal,
+  octal_literal,
+  hex_literal,
 } = require('../grammar/util.js')
 
 const duplicate_magic_hash_for_hsc = rule =>
   token(seq(rule, optional(token.immediate(/##?/))))
+const hsc_hash_typed_end =
+  /##(##|(Word|Int)(8|16|32|64)?)?/
+const magic_hash_hsc_typed = rule =>
+  token(seq(rule, optional(token.immediate(hsc_hash_typed_end))))
 
 const hsc_braced = ($, close) =>
   seq(
@@ -20,7 +28,6 @@ const hsc_braced = ($, close) =>
 
 module.exports = grammar(haskell, {
   name: 'hsc',
-
 
   precedences: ($, previous) =>
     previous.concat([
@@ -50,10 +57,11 @@ module.exports = grammar(haskell, {
     float: (_, previous) => duplicate_magic_hash_for_hsc(previous),
     char: (_, previous) => duplicate_magic_hash_for_hsc(previous),
     string: (_, previous) => duplicate_magic_hash_for_hsc(previous),
-    _integer_literal: (_, previous) => duplicate_magic_hash_for_hsc(previous),
-    _binary_literal: (_, previous) => duplicate_magic_hash_for_hsc(previous),
-    _octal_literal: (_, previous) => duplicate_magic_hash_for_hsc(previous),
-    _hex_literal: (_, previous) => duplicate_magic_hash_for_hsc(previous),
+
+    _integer_literal: _ => magic_hash_hsc_typed(decimal),
+    _binary_literal: _ => magic_hash_hsc_typed(binary_literal),
+    _octal_literal: _ => magic_hash_hsc_typed(octal_literal),
+    _hex_literal: _ => magic_hash_hsc_typed(hex_literal),
 
     // Hook hsc directives into regular Haskell constructs
     calling_convention: ($, previous) => choice(previous, $.hsc),
@@ -80,7 +88,7 @@ module.exports = grammar(haskell, {
     ),
 
     _hsc_literal: $ =>
-      hsc_braced($, choice('}##', '}####')),
+      hsc_braced($, token(seq("}", token.immediate(hsc_hash_typed_end)))),
 
     hsc_directive_name: $ =>
       token(/[a-zA-Z_]+/),

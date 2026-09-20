@@ -4,12 +4,15 @@ const {
   unboxed,
   string_char,
   multiline_string_char,
+  decimal,
+  binary_literal,
+  octal_literal,
+  hex_literal,
 } = require('./util.js')
 
-const decimal = /[0-9][0-9_]*/
 const exponent = /[eE][+-]?[0-9_]+/
-const hex_exponent = /[pP][+-]?[0-9a-fA-F_]+/
 const magic_hash = rule => token(seq(rule, optional(token.immediate(/##?/))))
+const magic_hash_typed = rule => token(seq(rule, optional(token.immediate(/#(#|(Word|Int)(8|16|32|64)?)?/))))
 
 module.exports = {
 
@@ -50,17 +53,10 @@ module.exports = {
     ),
   ),
 
-  _integer_literal: _ => magic_hash(decimal),
-  _binary_literal: _ => magic_hash(/0[bB][01_]+/),
-  _octal_literal: _ => magic_hash(/0[oO][0-7]+/),
-
-  _hex_literal: _ => magic_hash(
-    seq(
-      /0[xX][0-9a-fA-F_]+/,
-      optional(/\.[0-9a-fA-F_]+/),
-      optional(hex_exponent),
-    )
-  ),
+  _integer_literal: _ => magic_hash_typed(decimal),
+  _binary_literal: _ => magic_hash_typed(binary_literal),
+  _octal_literal: _ => magic_hash_typed(octal_literal),
+  _hex_literal: _ => magic_hash_typed(hex_literal),
 
   integer: $ => choice(
     $._binary_literal,

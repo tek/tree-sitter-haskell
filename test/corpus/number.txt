@@ -5,6 +5,7 @@ number: decimal
 a = 0
 a = 100_00_532
 a = 55#
+a = 55#Int64
 a = 55##
 
 --------------------------------------------------------------------------------
@@ -30,7 +31,29 @@ a = 55##
       (variable)
       (match
         (literal
+          (integer))))
+    (bind
+      (variable)
+      (match
+        (literal
           (integer))))))
+
+================================================================================
+number: decimal typed
+================================================================================
+
+a = 55#Int64
+
+--------------------------------------------------------------------------------
+
+(haskell
+  (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))))
+
 
 ================================================================================
 number: octal
@@ -38,12 +61,24 @@ number: octal
 
 a = 0o00
 a = 0O77
+a = 0O76#
+a = 0O70#Word8
 a = 0O77##
 
 --------------------------------------------------------------------------------
 
 (haskell
   (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
     (bind
       (variable)
       (match
@@ -67,6 +102,8 @@ number: hex
 a = 0xA8
 a = 0XEF84Fe23
 a = 0xa_e_123_4
+a = 0xDEAD_F00D#
+a = 0xBABE_F00D#Word16
 a = 0xa_e_123_4##
 a = 0x0.1p-4
 a = 0xFp3
@@ -75,6 +112,16 @@ a = 0xFp3
 
 (haskell
   (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
     (bind
       (variable)
       (match
