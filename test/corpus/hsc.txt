@@ -683,6 +683,7 @@ hsc: magic hash
 
 a = 1####
 a = 0xF00D####
+a = 0xF00D##Word8
 a = 1.0####
 a = 'a'####
 a = "a"####
@@ -691,6 +692,11 @@ a = "a"####
 
 (haskell
   (declarations
+    (bind
+      (variable)
+      (match
+        (literal
+          (integer))))
     (bind
       (variable)
       (match
@@ -723,12 +729,21 @@ hsc: magic hash after directive
 ================================================================================
 
 f #{const A}## = A
-g #{const A}#### = A
+g #{const A}##Int64 = A
+h #{const A}#### = A
 
 --------------------------------------------------------------------------------
 
 (haskell
   (declarations
+    (function
+      (variable)
+      (patterns
+        (literal
+          (hsc_directive_name)
+          (hsc_args)))
+      (match
+        (constructor)))
     (function
       (variable)
       (patterns
