@@ -20,5 +20,6 @@
                           (apply [3, 12] - [3, 18]
                             function: (variable [3, 12] - [3, 16])
                             argument: (variable [3, 17] - [3, 18]))))))))))
-          (comment [4, 10] - [4, 14])
+          (comment [4, 10] - [4, 14]
+            content: (content [4, 12] - [4, 14]))
           expression: (variable [5, 13] - [5, 14]))))))

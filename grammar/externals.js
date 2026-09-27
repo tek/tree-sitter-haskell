@@ -100,8 +100,18 @@ module.exports = {
     // Detect and emit text nodes for comments and CPP.
     // In particular, #else branches of CPP conditionals a fully contained in the resulting node, since their nonlinear
     // nature means they cannot be parsed.
-    $.comment,
-    $.haddock,
+    // Comments and haddocks are split into their opening delimiter and the remaining text so that query authors can
+    // single out the body (`content`) – e.g. to inject a language into comment text without the leading `--`.
+    // The scanner emits a hidden *start* token for the delimiter, extending it through the `|`/`^` herald for the
+    // haddock variants; the body is then parsed by the scanner again as `_comment_body`. See `lexeme.js` for why the
+    // herald can't be deferred to the grammar.
+    // Each variant comes in a `_only` form for the case where no body follows, since an extra rule (as `comment`/
+    // `haddock` have to be) must have an unambiguous ending and so can't express `optional(body)` directly.
+    $._comment_start,
+    $._comment_start_only,
+    $._haddock_start,
+    $._haddock_start_only,
+    $._comment_body,
     $.cpp,
     $.pragma,
 

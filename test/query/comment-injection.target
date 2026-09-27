@@ -1,0 +1,5 @@
+test/query/comment-injection.hs
+  pattern: 0
+    capture: 0 - injection.content, start: (1, 2), end: (1, 15), text: ` line comment`
+  pattern: 0
+    capture: 0 - injection.content, start: (2, 2), end: (2, 19), text: ` block comment -}`

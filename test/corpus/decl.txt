@@ -286,14 +286,16 @@ a = a
       (variable)
       (match
         (variable)))
-    (haddock)
+    (haddock
+      (content))
     (bind
       (variable)
       (match
         (do
           (exp
             (variable)))))
-    (haddock)
+    (haddock
+      (content))
     (bind
       (variable)
       (match
@@ -432,13 +434,13 @@ a == a + a = a
       (infix
         (variable)
         (operator)
-        (apply
-          (infix
+        (infix
+          (variable)
+          (operator)
+          (apply
             (variable)
-            (operator)
-            (variable))
-          (ERROR)
-          (variable))))))
+            (ERROR)
+            (variable)))))))
 
 ================================================================================
 decl: tuple pattern binder
